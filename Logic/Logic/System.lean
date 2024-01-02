@@ -43,6 +43,9 @@ abbrev Unprovable (T : Set F) (f : F) : Prop := IsEmpty (T ⊢ f)
 
 infix:45 " ⊬ " => System.Unprovable
 
+-- TODO: 互換性のために残している
+infix:45 " ⊬! " => System.Unprovable
+
 lemma unprovable_iff_not_provable {T : Set F} {f : F} : T ⊬ f ↔ ¬T ⊢! f := by simp[System.Unprovable]
 
 def BewTheoryEmpty (T : Set F) : T ⊢* ∅ := fun h => by contradiction
