@@ -15,6 +15,7 @@ variable {α} [DecidableEq α]
 /-- Gödel Translation -/
 def GTranslation : Intuitionistic.Formula α → Formula α
   | Intuitionistic.Formula.atom a  => □(Formula.atom a)
+  | Intuitionistic.Formula.verum   => ⊤
   | Intuitionistic.Formula.falsum  => ⊥
   | Intuitionistic.Formula.and p q => (GTranslation p) ⋏ (GTranslation q)
   | Intuitionistic.Formula.or p q  => (GTranslation p) ⋎ (GTranslation q)
@@ -28,6 +29,7 @@ variable {p q : Intuitionistic.Formula α}
 
 @[simp] lemma atom_def : (Intuitionistic.Formula.atom a)ᵍ = □(Formula.atom a) := by simp [GTranslation];
 @[simp] lemma falsum_def : (⊥ : Intuitionistic.Formula α)ᵍ = ⊥ := by simp [GTranslation];
+@[simp] lemma verum_def : (⊤ : Intuitionistic.Formula α)ᵍ = ⊤ := by simp [GTranslation];
 @[simp] lemma and_def : (p ⋏ q)ᵍ = pᵍ ⋏ qᵍ := by simp [GTranslation];
 @[simp] lemma or_def : (p ⋎ q)ᵍ = pᵍ ⋎ qᵍ := by simp [GTranslation];
 @[simp] lemma imp_def : (p ⟶ q)ᵍ = □(pᵍ ⟶ qᵍ) := by simp [GTranslation];
@@ -38,6 +40,7 @@ end GTranslation
 lemma intAxiom4 {p : Intuitionistic.Formula α} : ∅ ⊢ᴹ[𝐊𝟒]! pᵍ ⟶ □pᵍ := by
   induction p using Intuitionistic.Formula.rec' with
   | hatom => simp; apply axiom4!;
+  | hverum => apply dtr!; apply necessitation!; apply verum!;
   | hfalsum => apply dtr!; apply efq'!; apply axm!; simp;
   | himp => simp; apply axiom4!;
   | hand p q ihp ihq =>
@@ -105,6 +108,7 @@ lemma embed_Int_S4 (h : ∅ ⊢! p) : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ
     have h₁ := by simpa using ihpq ⟨hpq⟩;
     have h₂ := by simpa using ihp ⟨hp⟩;
     exact axiomT'! $ axiomK'! h₁ (necessitation! h₂);
+  | verum => apply verum!;
   | _ =>
     simp [GTranslation];
     apply necessitation!;
