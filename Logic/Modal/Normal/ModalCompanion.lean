@@ -97,9 +97,14 @@ private lemma embed_Int_S4.case_disj₃ : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! 
   | inr h => exact hq _ (by assumption) h;
 
 open embed_Int_S4 in
-lemma embed_Int_S4 (h : ∅ ⊢! p) : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ := by
+lemma embed_Int_S4 (h : ∅ ⊢ⁱ! p) : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ := by
   induction h.some with
   | axm => contradiction;
+  | eaxm ih =>
+    obtain ⟨q, hq⟩ := by simpa [Intuitionistic.AxiomEFQ.set, Intuitionistic.AxiomEFQ] using ih;
+    subst hq;
+    apply necessitation!;
+    apply efq!;
   | imply₁ p q => exact case_imply₁;
   | imply₂ p q r => exact case_imply₂;
   | conj₃ p q => exact case_conj₃;
@@ -117,11 +122,10 @@ lemma embed_Int_S4 (h : ∅ ⊢! p) : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ
     | apply conj₂!;
     | apply disj₁!;
     | apply disj₂!;
-    | apply efq!;
 
 variable [Encodable α]
 
-lemma embed_S4_Int : (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) → (∅ ⊢! p) := by
+lemma embed_S4_Int : (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) → (∅ ⊢ⁱ! p) := by
   contrapose;
   intro h;
   obtain ⟨γ, MI, w, ⟨_, h⟩⟩ := by simpa [Intuitionistic.Formula.KripkeConsequence] using not_imp_not.mpr Intuitionistic.Kripke.completes h;
@@ -157,7 +161,7 @@ lemma embed_S4_Int : (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) → (∅ ⊢! 
   contradiction;
 
 /-- a.k.a. Gödel-McKinsey-Tarski Theorem -/
-theorem companion_Int_S4 {p : Intuitionistic.Formula α} : (∅ ⊢! p) ↔ (∅ ⊢ᴹ[𝐒𝟒]! pᵍ) := by
+theorem companion_Int_S4 {p : Intuitionistic.Formula α} : (∅ ⊢ⁱ! p) ↔ (∅ ⊢ᴹ[𝐒𝟒]! pᵍ) := by
   constructor;
   . apply embed_Int_S4;
   . apply embed_S4_Int;
