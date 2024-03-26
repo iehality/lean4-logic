@@ -62,12 +62,12 @@ variable [Inhabited α]
 
 private lemma embed_Int_S4.case_imply₁ : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! (p ⟶ q ⟶ p)ᵍ := by
   simp only [GTranslation];
-  have : ∅ ⊢ᴹ[𝐊𝟒]! pᵍ ⟶ □pᵍ := by apply intAxiom4
-  have : ∅ ⊢ᴹ[𝐊𝟒]! □(pᵍ ⟶ qᵍ ⟶ pᵍ) := necessitation! $ by apply imply₁!
-  have : ∅ ⊢ᴹ[𝐊𝟒]! □pᵍ ⟶ □(qᵍ ⟶ pᵍ) := modus_ponens'! (by apply axiomK!) (by assumption)
-  have : ∅ ⊢ᴹ[𝐊𝟒]! pᵍ ⟶ □(qᵍ ⟶ pᵍ) := imp_trans'! (by assumption) (by assumption)
-  have : ∅ ⊢ᴹ[𝐊𝟒]! □(pᵍ ⟶ □(qᵍ ⟶ pᵍ)) := necessitation! (by assumption)
-  exact deducible_strong_K4_S4 (by assumption)
+  have : ∅ ⊢ᴹ[𝐊𝟒]! pᵍ ⟶ □pᵍ := by apply intAxiom4;
+  have : ∅ ⊢ᴹ[𝐊𝟒]! □(pᵍ ⟶ qᵍ ⟶ pᵍ) := necessitation! $ by apply imply₁!;
+  have : ∅ ⊢ᴹ[𝐊𝟒]! □pᵍ ⟶ □(qᵍ ⟶ pᵍ) := modus_ponens'! (by apply axiomK!) (by assumption);
+  have : ∅ ⊢ᴹ[𝐊𝟒]! pᵍ ⟶ □(qᵍ ⟶ pᵍ) := imp_trans'! (by assumption) (by assumption);
+  have : ∅ ⊢ᴹ[𝐊𝟒]! □(pᵍ ⟶ □(qᵍ ⟶ pᵍ)) := necessitation! (by assumption);
+  exact strong_K4_S4 (by assumption)
 
 /-- TODO: prove syntactically -/
 private lemma embed_Int_S4.case_imply₂ : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! ((p ⟶ q ⟶ r) ⟶ (p ⟶ q) ⟶ p ⟶ r)ᵍ := by
@@ -84,7 +84,7 @@ private lemma embed_Int_S4.case_conj₃ : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! 
   have : ∅ ⊢ᴹ[𝐊𝟒]! □pᵍ ⟶ □(qᵍ ⟶ pᵍ ⋏ qᵍ) := modus_ponens'! (by apply axiomK!) (by assumption);
   have : ∅ ⊢ᴹ[𝐊𝟒]! pᵍ ⟶ □(qᵍ ⟶ pᵍ ⋏ qᵍ) := imp_trans'! (by apply intAxiom4) (by assumption)
   have : ∅ ⊢ᴹ[𝐊𝟒]! □(pᵍ ⟶ □(qᵍ ⟶ pᵍ ⋏ qᵍ)) := necessitation! (by assumption)
-  exact deducible_strong_K4_S4 (by assumption)
+  exact strong_K4_S4 (by assumption)
 
 /-- TODO: prove syntactically -/
 private lemma embed_Int_S4.case_disj₃ : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! (((p ⟶ r) ⟶ (q ⟶ r) ⟶ (p ⋎ q ⟶ r)))ᵍ := by
