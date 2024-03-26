@@ -280,6 +280,91 @@ def iff_left_top {Γ p} (d : Bew Γ (⊤ ⟷ p)) : Bew Γ p := imp_top (iff_mp' 
 
 def iff_right_top {Γ p} (d : Bew Γ (p ⟷ ⊤)) : Bew Γ p := imp_top (iff_mpr' d)
 
+def tne : Bew Γ (~~(~p) ⟶ ~p) := by
+  have : Bew Γ (p ⟶ ~~p) := dni Γ p;
+  have : Bew Γ (~~(~p) ⟶ ~p) := contra₀' (by assumption)
+  assumption
+
+def tne' {Γ p} : Bew Γ (~~(~p)) → Bew Γ (~p) := modus_ponens' (tne _ _)
+
+def imp_swap' {Γ p q r} (h : Bew Γ (p ⟶ q ⟶ r)) : Bew Γ (q ⟶ p ⟶ r) := by
+  apply dtr;
+  apply dtr;
+  rw [(show insert p (insert q Γ) = insert q (insert p Γ) by aesop)];
+  apply dtl;
+  apply dtl;
+  simpa;
+
+def dn_distribute_imp_left : Bew Γ (~~(p ⟶ q) ⟶ (~~p ⟶ ~~q)) := by
+  have : Bew {p ⟶ q} (~~p ⟶ ~~q) := contra₀' $ contra₀' $ axm (by simp);
+  have : Bew ∅ ((p ⟶ q) ⟶ ~~p ⟶ ~~q) := dtr (by simpa);
+  have : Bew ∅ (~~p ⟶ (p ⟶ q) ⟶  ~~q) := imp_swap' (by simpa);
+  have : Bew {~~p} ((p ⟶ q) ⟶ (~~q)) := by simpa using dtl this;
+  have : Bew {~~p} (~~(p ⟶ q) ⟶ ~~(~~q)) := contra₀' $ contra₀' $ (by assumption);
+  have : Bew {~~p} (~~(p ⟶ q) ⟶ ~~q) := imp_trans' (by assumption) $ tne _ (~q);
+  have : Bew ∅ (~~p ⟶ ~~(p ⟶ q) ⟶ ~~q) := dtr (by simpa);
+  have : Bew ∅ (~~(p ⟶ q) ⟶ ~~p ⟶  ~~q) := imp_swap' (by simpa);
+  exact weakening' (by simp) this
+
+def dn_distribute_imp_left' {Γ p q} : Bew Γ (~~(p ⟶ q)) → Bew Γ (~~p ⟶ ~~q) := modus_ponens' (dn_distribute_imp_left _ _ _)
+
+def efq_incldue {Γ p q} (h₁ : p ∈ Γ) (h₂ : ~p ∈ Γ) : Bew Γ q := by
+  have d₁ : Bew Γ p := axm h₁;
+  have d₂ : Bew Γ (~p) := axm h₂;
+  have := modus_ponens' (by simpa using d₂) d₁;
+  exact efq' this
+
+def imp_intro_of_or (Γ p q) : Bew Γ ((~p ⋎ q) ⟶ (p ⟶ q)) := by
+  have d₁ : Bew Γ (~p ⟶ (p ⟶ q)) := by
+    apply dtr;
+    apply dtr;
+    exact efq_incldue (show p ∈ insert p (insert (~p) Γ) by simp) (by simp);
+  have d₂ : Bew Γ (q ⟶ (p ⟶ q)) := by
+    apply dtr;
+    apply dtr;
+    exact axm (show q ∈ insert p (insert q Γ) by simp);
+  exact ((disj₃ _ _ _ _) ⨀ d₁) ⨀ d₂
+
+def neg_or (Γ p q) : Bew Γ (~(p ⋎ q) ⟶ (~p ⋏ ~q)) := by
+  have d₁ : Bew ∅ (~(p ⋎ q) ⟶ ~p) := contra₀' $ disj₁ _ _ _;
+  have d₂ : Bew ∅ (~(p ⋎ q) ⟶ ~q) := contra₀' $ disj₂ _ _ _;
+  have : Bew {~(p ⋎ q)} (~p) := by simpa using dtl d₁;
+  have : Bew {~(p ⋎ q)} (~q) := by simpa using dtl d₂;
+  have : Bew ∅ (~(p ⋎ q) ⟶ (~p ⋏ ~q)) := dtr $ conj₃' (by simpa using dtl d₁) (by simpa using dtl d₂);
+  exact weakening' (by simp) this;
+
+def intro_bot_of_and (Γ p) : Bew Γ (p ⋏ ~p ⟶ ⊥) := by
+  apply dtr;
+  have : Bew {p ⋏ ~p} (p ⋏ ~p) := axm (by simp);
+  have : Bew {p ⋏ ~p} p := conj₁' (by assumption);
+  have : Bew {p ⋏ ~p} (~p) := conj₂' (by assumption);
+  have : Bew {p ⋏ ~p} (p ⟶ ⊥) := by simpa;
+  have : Bew {p ⋏ ~p} ⊥ := modus_ponens' (by assumption) (conj₁' (by assumption));
+  exact weakening' (by simp) this
+
+def dn_distribute_imp_right : Bew Γ ((~~p ⟶ ~~q) ⟶ ~~(p ⟶ q)) := by
+  have : Bew ∅ (~(p ⟶ q) ⟶ ~(~p ⋎ q)) := contra₀' $ imp_intro_of_or _ p q;
+  have : Bew ∅ (~(~p ⋎ q) ⟶ (~~p ⋏ ~q)) := neg_or _ (~p) q
+  have : Bew ∅ (~(p ⟶ q) ⟶ (~~p ⋏ ~q)) := imp_trans' (by assumption) (by assumption);
+
+  let Γ' := (insert (~(p ⟶ q)) (insert (~~p ⟶ ~~q) Γ));
+
+  have d₁ : Bew Γ' ((~q ⋏ ~~p)) := weakening' (show {~(p ⟶ q)} ⊆ Γ' by aesop) $ conj_symm' $ by simpa using dtl this;
+  have d₂ : Bew Γ' ((~q ⋏ ~~q)) := by
+    have dnq : Bew Γ' (~q) := conj₁' d₁;
+    have dnnq : Bew Γ' (~~q) := (axm (by aesop)) ⨀ (conj₂' d₁);
+    exact conj₃' dnq dnnq;
+  have d₃ : Bew Γ' ((~q ⋏ ~~q) ⟶ ⊥) := intro_bot_of_and _ (~q);
+  have : Bew (insert (~(p ⟶ q)) (insert (~~p ⟶ ~~q) Γ)) ⊥ := d₃ ⨀ d₂;
+
+  nth_rw 5 [NegDefinition.neg];
+  apply dtr;
+  apply dtr;
+
+  assumption;
+
+def dn_distribute_imp_right' {Γ p q} : Bew Γ (~~p ⟶ ~~q) → Bew Γ (~~(p ⟶ q)) := modus_ponens' (dn_distribute_imp_right _ _ _)
+
 end Minimal
 
 section Classical
@@ -319,7 +404,7 @@ variable (Γ : Set F) (p : F)
 section Deducible
 
 variable {Bew : Set F → F → Type u} [Deduction Bew]
-variable [HasDT Bew] [HasModusPonens Bew] [Minimal Bew] [Classical Bew]
+variable [HasDT Bew] [HasModusPonens Bew] [Minimal Bew]
 
 local infix:20 "⊢!" => Deducible Bew
 local infix:20 "⊬!" => Undeducible Bew
@@ -365,11 +450,6 @@ lemma efq'! [HasEFQ Bew] {Γ : Set F} {p} (d : Γ ⊢! ⊥) : Γ ⊢! p := ⟨ef
 lemma dni! (Γ : Set F) (p : F) : Γ ⊢! (p ⟶ ~~p) := ⟨dni Γ p⟩
 lemma dni'! {Γ : Set F} {p} (d : Γ ⊢! p) : Γ ⊢! (~~p) := ⟨dni' d.some⟩
 
-lemma dne! [HasDNE Bew] (Γ : Set F) (p : F) : Γ ⊢! (~~p ⟶ p) := ⟨dne Γ p⟩
-lemma dne'! [HasDNE Bew] {Γ : Set F} {p} (d : Γ ⊢! (~~p)) : Γ ⊢! p := ⟨dne' d.some⟩
-
-lemma equiv_dn! (Γ : Set F) (p : F) : Γ ⊢! (p ⟷ ~~p) := ⟨equiv_dn Γ p⟩
-
 lemma iff_intro! {Γ : Set F} {p q : F} (dpq : Γ ⊢! (p ⟶ q)) (dqp : Γ ⊢! (q ⟶ p)) : Γ ⊢! (p ⟷ q) := ⟨iff_intro dpq.some dqp.some⟩
 
 lemma iff_symm'! {Γ : Set F} {p q : F} (d : Γ ⊢! (p ⟷ q)) : Γ ⊢! (q ⟷ p) := ⟨iff_symm' d.some⟩
@@ -411,6 +491,32 @@ lemma iff_left_top! {Γ : Set F} {p : F} (d : Γ ⊢! (⊤ ⟷ p)) : Γ ⊢! p :
 lemma iff_right_top! {Γ : Set F} {p : F} (d : Γ ⊢! (p ⟷ ⊤)) : Γ ⊢! p := ⟨iff_right_top d.some⟩
 
 lemma imp_trans'! {Γ : Set F} {p q r : F} (h₁ : Γ ⊢! (p ⟶ q)) (h₂ : Γ ⊢! (q ⟶ r)) : Γ ⊢! (p ⟶ r) := ⟨imp_trans' h₁.some h₂.some⟩
+
+lemma tne! (Γ : Set F) (p : F) : Γ ⊢! (~~(~p) ⟶ ~p) := ⟨tne Γ p⟩
+lemma tne'! {Γ : Set F} {p} (d : Γ ⊢! (~~(~p))) : Γ ⊢! (~p) := ⟨tne' d.some⟩
+
+section Intuitionistic
+
+variable [Intuitionistic Bew]
+
+lemma dn_distribute_imp_left! (Γ : Set F) (p q : F) : Γ ⊢! (~~(p ⟶ q) ⟶ (~~p ⟶ ~~q)) := ⟨dn_distribute_imp_left Γ p q⟩
+lemma dn_distribute_imp_left'! {Γ : Set F} {p q : F} (d : Γ ⊢! (~~(p ⟶ q))) : Γ ⊢! (~~p ⟶ ~~q) := ⟨dn_distribute_imp_left' d.some⟩
+
+lemma dn_disctribute_imp_right! (Γ : Set F) (p q : F) : Γ ⊢! ((~~p ⟶ ~~q) ⟶ ~~(p ⟶ q)) := ⟨dn_distribute_imp_right Γ p q⟩
+lemma dn_disctribute_imp_right'! {Γ : Set F} {p q : F} (d : Γ ⊢! (~~p ⟶ ~~q)) : Γ ⊢! (~~(p ⟶ q)) := ⟨dn_distribute_imp_right' d.some⟩
+
+end Intuitionistic
+
+section Classical
+
+variable [Classical Bew]
+
+lemma dne! [HasDNE Bew] (Γ : Set F) (p : F) : Γ ⊢! (~~p ⟶ p) := ⟨dne Γ p⟩
+lemma dne'! [HasDNE Bew] {Γ : Set F} {p} (d : Γ ⊢! (~~p)) : Γ ⊢! p := ⟨dne' d.some⟩
+
+lemma equiv_dn! (Γ : Set F) (p : F) : Γ ⊢! (p ⟷ ~~p) := ⟨equiv_dn Γ p⟩
+
+end Classical
 
 end Deducible
 

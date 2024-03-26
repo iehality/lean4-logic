@@ -15,6 +15,7 @@ variable {α} [DecidableEq α]
 /-- Gödel Translation -/
 def GTranslation : Intuitionistic.Formula α → Formula α
   | Intuitionistic.Formula.atom a  => □(Formula.atom a)
+  | Intuitionistic.Formula.verum   => ⊤
   | Intuitionistic.Formula.falsum  => ⊥
   | Intuitionistic.Formula.and p q => (GTranslation p) ⋏ (GTranslation q)
   | Intuitionistic.Formula.or p q  => (GTranslation p) ⋎ (GTranslation q)
@@ -28,16 +29,18 @@ variable {p q : Intuitionistic.Formula α}
 
 @[simp] lemma atom_def : (Intuitionistic.Formula.atom a)ᵍ = □(Formula.atom a) := by simp [GTranslation];
 @[simp] lemma falsum_def : (⊥ : Intuitionistic.Formula α)ᵍ = ⊥ := by simp [GTranslation];
+@[simp] lemma verum_def : (⊤ : Intuitionistic.Formula α)ᵍ = ⊤ := by simp [GTranslation];
 @[simp] lemma and_def : (p ⋏ q)ᵍ = pᵍ ⋏ qᵍ := by simp [GTranslation];
 @[simp] lemma or_def : (p ⋎ q)ᵍ = pᵍ ⋎ qᵍ := by simp [GTranslation];
 @[simp] lemma imp_def : (p ⟶ q)ᵍ = □(pᵍ ⟶ qᵍ) := by simp [GTranslation];
-@[simp] lemma neg_def' : (~p)ᵍ = □~(p)ᵍ := by simp [GTranslation];
+@[simp] lemma neg_def : (~p)ᵍ = □~(p)ᵍ := by simp [GTranslation];
 
 end GTranslation
 
 lemma intAxiom4 {p : Intuitionistic.Formula α} : ∅ ⊢ᴹ[𝐊𝟒]! pᵍ ⟶ □pᵍ := by
   induction p using Intuitionistic.Formula.rec' with
   | hatom => simp; apply axiom4!;
+  | hverum => apply dtr!; apply necessitation!; apply verum!;
   | hfalsum => apply dtr!; apply efq'!; apply axm!; simp;
   | himp => simp; apply axiom4!;
   | hand p q ihp ihq =>
@@ -94,9 +97,14 @@ private lemma embed_Int_S4.case_disj₃ : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! 
   | inr h => exact hq _ (by assumption) h;
 
 open embed_Int_S4 in
-lemma embed_Int_S4 (h : ∅ ⊢! p) : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ := by
+lemma embed_Int_S4 (h : ∅ ⊢ⁱ! p) : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ := by
   induction h.some with
   | axm => contradiction;
+  | eaxm ih =>
+    obtain ⟨q, hq⟩ := by simpa [Intuitionistic.AxiomEFQ.set, Intuitionistic.AxiomEFQ] using ih;
+    subst hq;
+    apply necessitation!;
+    apply efq!;
   | imply₁ p q => exact case_imply₁;
   | imply₂ p q r => exact case_imply₂;
   | conj₃ p q => exact case_conj₃;
@@ -105,6 +113,7 @@ lemma embed_Int_S4 (h : ∅ ⊢! p) : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ
     have h₁ := by simpa using ihpq ⟨hpq⟩;
     have h₂ := by simpa using ihp ⟨hp⟩;
     exact axiomT'! $ axiomK'! h₁ (necessitation! h₂);
+  | verum => apply verum!;
   | _ =>
     simp [GTranslation];
     apply necessitation!;
@@ -113,11 +122,10 @@ lemma embed_Int_S4 (h : ∅ ⊢! p) : ∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ
     | apply conj₂!;
     | apply disj₁!;
     | apply disj₂!;
-    | apply efq!;
 
 variable [Encodable α]
 
-lemma embed_S4_Int : (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) → (∅ ⊢! p) := by
+lemma embed_S4_Int : (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) → (∅ ⊢ⁱ! p) := by
   contrapose;
   intro h;
   obtain ⟨γ, MI, w, ⟨_, h⟩⟩ := by simpa [Intuitionistic.Formula.KripkeConsequence] using not_imp_not.mpr Intuitionistic.Kripke.completes h;
@@ -128,13 +136,13 @@ lemma embed_S4_Int : (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) → (∅ ⊢! 
   };
   have MRefl : Reflexive M.frame := by apply MI.refl;
   have MTrans : Transitive M.frame := by apply MI.trans;
-  have h₁ : ∀ (q : Intuitionistic.Formula α) (v), (v ⊩[MI] q) ↔ (v ⊩ᴹ[M] qᵍ) := by
+  have h₁ : ∀ (q : Intuitionistic.Formula α) (v), (v ⊩ⁱ[MI] q) ↔ (v ⊩ᴹ[M] qᵍ) := by
     intro q v;
     induction q using Intuitionistic.Formula.rec' generalizing v with
     | hatom a =>
       constructor;
       . intro _ _ h;
-        have := MI.herditary h;
+        have := MI.hereditary h;
         simp_all;
       . intro h;
         have := h v (MRefl v);
@@ -152,10 +160,48 @@ lemma embed_S4_Int : (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) → (∅ ⊢! 
 
   contradiction;
 
-/-- a.k.a. Gödel-McKinsey-Tarski Theorem -/
-theorem companion_Int_S4 {p : Intuitionistic.Formula α} : (∅ ⊢! p) ↔ (∅ ⊢ᴹ[𝐒𝟒]! pᵍ) := by
+def ModalCompanion {α} (iΛ : Intuitionistic.AxiomSet α) (mΛ : AxiomSet α) : Prop := ∀ {p : Intuitionistic.Formula α}, (∅ ⊢ᴾ[iΛ]! p) ↔ (∅ ⊢ᴹ[mΛ]! pᵍ)
+
+theorem ModalCompanion_EFQ_S4 : @ModalCompanion α 𝐄𝐅𝐐 𝐒𝟒 := by
+  intro p;
   constructor;
   . apply embed_Int_S4;
   . apply embed_S4_Int;
+
+lemma ModalCompanion_Int_S4 : (∅ ⊢ⁱ! p) ↔ (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) := ModalCompanion_EFQ_S4
+
+open Intuitionistic.Deduction (glivenko)
+
+lemma embed_Classical_S4 {p : Intuitionistic.Formula α} : (∅ ⊢ᶜ! p) ↔ (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! ◇pᵍ) := by
+  constructor;
+  . intro h;
+    have := glivenko.mpr h;
+    have := ModalCompanion_Int_S4.mp this;
+    simp only [GTranslation.neg_def] at this;
+    simpa using axiomT'! this;
+  . intro h;
+    have : ∅ ⊢ᴹ[𝐒𝟒]! □~(□~pᵍ) := by simpa using necessitation! h;
+    rw [←GTranslation.neg_def] at this;
+    rw [←GTranslation.neg_def] at this;
+    have := ModalCompanion_Int_S4.mpr this;
+    exact glivenko.mp this;
+
+def AxiomSet.ModalDisjunctive (Λ : AxiomSet α) : Prop := ∀ {p q : Formula α}, (∅ ⊢ᴹ[Λ]! □p ⋎ □q) → (∅ ⊢ᴹ[Λ]! p) ∨ (∅ ⊢ᴹ[Λ]! q)
+
+lemma disjunctive_of_modalDisjunctive
+  (iΛ : Intuitionistic.AxiomSet α) (mΛ : AxiomSet α) (hK4 : 𝐊𝟒 ⊆ mΛ)
+  (hComp : ModalCompanion iΛ mΛ)
+  (hMDisj : mΛ.ModalDisjunctive)
+  : iΛ.Disjunctive := by
+  simp only [AxiomSet.ModalDisjunctive, Intuitionistic.AxiomSet.Disjunctive];
+  intro p q hpq;
+  have : ∅ ⊢ᴹ[mΛ]! pᵍ ⋎ qᵍ := by simpa [GTranslation] using hComp.mp hpq;
+  have : ∅ ⊢ᴹ[mΛ]! □pᵍ ⋎ □qᵍ := by
+    have dp : ∅ ⊢ᴹ[mΛ]! pᵍ ⟶ (□pᵍ ⋎ □qᵍ) := Deduction.maxm_subset! hK4 $ imp_trans'! (by apply intAxiom4) (by apply disj₁!);
+    have dq : ∅ ⊢ᴹ[mΛ]! qᵍ ⟶ (□pᵍ ⋎ □qᵍ) := Deduction.maxm_subset! hK4 $ imp_trans'! (by apply intAxiom4) (by apply disj₂!);
+    exact disj₃'! dp dq (by assumption);
+  cases hMDisj this with
+  | inl h => left; exact hComp.mpr h;
+  | inr h => right; exact hComp.mpr h;
 
 end LO.Modal.Normal

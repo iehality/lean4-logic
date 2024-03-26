@@ -10,6 +10,7 @@ namespace Intuitionistic
 @[simp]
 def Formula.toClassical : Formula α → Classical.Formula α
   | Formula.atom a => Classical.Formula.atom a
+  | ⊤              => ⊤
   | ⊥              => ⊥
   | p ⋏ q          => p.toClassical ⋏ q.toClassical
   | p ⋎ q          => p.toClassical ⋎ q.toClassical
@@ -19,6 +20,7 @@ instance : Coe (Formula α) (Classical.Formula α) := ⟨Formula.toClassical⟩
 
 instance : Coe (Theory α) (Classical.Theory α) := ⟨(Formula.toClassical '' ·)⟩
 
+/-
 def Deduction.toClassical {T : Theory α} {p} : T ⊢ p → (T : Classical.Theory α) ⊢! p
   | axm h                      => Deduction.axm! (Set.mem_image_of_mem _ h)
   | @modusPonens _ _ p q b₁ b₂ => by
@@ -35,6 +37,7 @@ def Deduction.toClassical {T : Theory α} {p} : T ⊢ p → (T : Classical.Theor
   | disj₁ _ _ _                => by simp; prover
   | disj₂ _ _ _                => by simp; prover
   | disj₃ _ _ _ _              => by simp; prover
+-/
 
 end Intuitionistic
 
