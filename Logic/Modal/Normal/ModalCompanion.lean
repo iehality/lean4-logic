@@ -142,7 +142,7 @@ lemma embed_S4_Int : (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) → (∅ ⊢�
     | hatom a =>
       constructor;
       . intro _ _ h;
-        have := MI.herditary h;
+        have := MI.hereditary h;
         simp_all;
       . intro h;
         have := h v (MRefl v);
@@ -160,11 +160,15 @@ lemma embed_S4_Int : (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) → (∅ ⊢�
 
   contradiction;
 
-/-- a.k.a. Gödel-McKinsey-Tarski Theorem -/
-theorem companion_Int_S4 {p : Intuitionistic.Formula α} : (∅ ⊢ⁱ! p) ↔ (∅ ⊢ᴹ[𝐒𝟒]! pᵍ) := by
+def ModalCompanion (α) (iΛ : Intuitionistic.AxiomSet α) (mΛ : AxiomSet α) : Prop := ∀ {p : Intuitionistic.Formula α}, (∅ ⊢ᴾ[iΛ]! p) ↔ (∅ ⊢ᴹ[mΛ]! pᵍ)
+
+theorem ModalCompanion_EFQ_S4 : ModalCompanion α 𝐄𝐅𝐐 𝐒𝟒 := by
+  intro p;
   constructor;
   . apply embed_Int_S4;
   . apply embed_S4_Int;
+
+lemma ModalCompanion_Int_S4 : (∅ ⊢ⁱ! p) ↔ (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) := ModalCompanion_EFQ_S4
 
 open Intuitionistic.Deduction (glivenko)
 
@@ -172,14 +176,14 @@ lemma embed_Classical_S4 {p : Intuitionistic.Formula α} : (∅ ⊢ᶜ! p) ↔ (
   constructor;
   . intro h;
     have := glivenko.mpr h;
-    have := companion_Int_S4.mp this;
+    have := ModalCompanion_Int_S4.mp this;
     simp only [GTranslation.neg_def] at this;
     simpa using axiomT'! this;
   . intro h;
     have : ∅ ⊢ᴹ[𝐒𝟒]! □~(□~pᵍ) := by simpa using necessitation! h;
     rw [←GTranslation.neg_def] at this;
     rw [←GTranslation.neg_def] at this;
-    have := companion_Int_S4.mpr this;
+    have := ModalCompanion_Int_S4.mpr this;
     exact glivenko.mp this;
 
 end LO.Modal.Normal
