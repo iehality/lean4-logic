@@ -423,7 +423,7 @@ theorem Kripke.completes {Γ : Theory β} {p : Formula β} : (Γ ⊨ⁱ p) → (
 
 section DisjProp
 
-def DPCounterModel (M₁ : Kripke.Model γ₁ β) (M₂ : Kripke.Model γ₂ β) (w₁ : γ₁) (w₂ : γ₂) : Kripke.Model (Unit ⊕ γ₁ ⊕ γ₂) β where
+private def DPCounterModel (M₁ : Kripke.Model γ₁ β) (M₂ : Kripke.Model γ₂ β) (w₁ : γ₁) (w₂ : γ₂) : Kripke.Model (Unit ⊕ γ₁ ⊕ γ₂) β where
   frame w v :=
     match w, v with
     | (Sum.inl _), (Sum.inl _) => True
@@ -457,7 +457,7 @@ def DPCounterModel (M₁ : Kripke.Model γ₁ β) (M₂ : Kripke.Model γ₂ β)
 
 variable {M₁ : Kripke.Model γ₁ β} {M₂ : Kripke.Model γ₂ β}
 
-lemma DPCounterModel_left {p : Formula β} : (w ⊩ⁱ[M₁] p) ↔ (Sum.inr $ Sum.inl w) ⊩ⁱ[DPCounterModel M₁ M₂ w₁ w₂] p := by
+private lemma DPCounterModel_left {p : Formula β} : (w ⊩ⁱ[M₁] p) ↔ (Sum.inr $ Sum.inl w) ⊩ⁱ[DPCounterModel M₁ M₂ w₁ w₂] p := by
   induction p using rec' generalizing w with
   | himp p₁ p₂ ih₁ ih₂ =>
     constructor;
@@ -480,7 +480,7 @@ lemma DPCounterModel_left {p : Formula β} : (w ⊩ⁱ[M₁] p) ↔ (Sum.inr $ S
       simpa;
   | _ => simp_all [DPCounterModel];
 
-lemma DPCounterModel_right {p : Formula β} : (w ⊩ⁱ[M₂] p) ↔ (Sum.inr $ Sum.inr w) ⊩ⁱ[DPCounterModel M₁ M₂ w₁ w₂] p := by
+private lemma DPCounterModel_right {p : Formula β} : (w ⊩ⁱ[M₂] p) ↔ (Sum.inr $ Sum.inr w) ⊩ⁱ[DPCounterModel M₁ M₂ w₁ w₂] p := by
   induction p using rec' generalizing w with
   | himp p₁ p₂ ih₁ ih₂ =>
     constructor;
@@ -503,7 +503,7 @@ lemma DPCounterModel_right {p : Formula β} : (w ⊩ⁱ[M₂] p) ↔ (Sum.inr $ 
       simpa;
   | _ => simp_all [DPCounterModel];
 
-theorem Deduction.disjunctive {p q : Formula β} : ∅ ⊢ⁱ! p ⋎ q → ∅ ⊢ⁱ! p ∨ ∅ ⊢ⁱ! q := by
+theorem Intuitionistic.Disjunctive {p q : Formula β} : ∅ ⊢ⁱ! p ⋎ q → ∅ ⊢ⁱ! p ∨ ∅ ⊢ⁱ! q := by
   contrapose;
   intro h;
   apply not_imp_not.mpr Kripke.sounds;
@@ -520,6 +520,8 @@ theorem Deduction.disjunctive {p q : Formula β} : ∅ ⊢ⁱ! p ⋎ q → ∅ �
   have : ¬Sum.inl () ⊩ⁱ[M] q := not_imp_not.mpr (Kripke.hereditary_formula (by simp [M]; rfl)) (DPCounterModel_right.not.mp hq)
 
   simp_all;
+
+lemma AxiomEFQ.Disjunctive : AxiomSet.Disjunctive (𝐄𝐅𝐐 : AxiomSet β) := by apply Intuitionistic.Disjunctive;
 
 end DisjProp
 

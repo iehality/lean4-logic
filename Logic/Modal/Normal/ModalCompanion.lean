@@ -136,7 +136,7 @@ lemma embed_S4_Int : (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) → (∅ ⊢�
   };
   have MRefl : Reflexive M.frame := by apply MI.refl;
   have MTrans : Transitive M.frame := by apply MI.trans;
-  have h₁ : ∀ (q : Intuitionistic.Formula α) (v), (v ⊩[MI] q) ↔ (v ⊩ᴹ[M] qᵍ) := by
+  have h₁ : ∀ (q : Intuitionistic.Formula α) (v), (v ⊩ⁱ[MI] q) ↔ (v ⊩ᴹ[M] qᵍ) := by
     intro q v;
     induction q using Intuitionistic.Formula.rec' generalizing v with
     | hatom a =>
@@ -160,9 +160,9 @@ lemma embed_S4_Int : (∅ ⊢ᴹ[(𝐒𝟒 : AxiomSet α)]! pᵍ) → (∅ ⊢�
 
   contradiction;
 
-def ModalCompanion (α) (iΛ : Intuitionistic.AxiomSet α) (mΛ : AxiomSet α) : Prop := ∀ {p : Intuitionistic.Formula α}, (∅ ⊢ᴾ[iΛ]! p) ↔ (∅ ⊢ᴹ[mΛ]! pᵍ)
+def ModalCompanion {α} (iΛ : Intuitionistic.AxiomSet α) (mΛ : AxiomSet α) : Prop := ∀ {p : Intuitionistic.Formula α}, (∅ ⊢ᴾ[iΛ]! p) ↔ (∅ ⊢ᴹ[mΛ]! pᵍ)
 
-theorem ModalCompanion_EFQ_S4 : ModalCompanion α 𝐄𝐅𝐐 𝐒𝟒 := by
+theorem ModalCompanion_EFQ_S4 : @ModalCompanion α 𝐄𝐅𝐐 𝐒𝟒 := by
   intro p;
   constructor;
   . apply embed_Int_S4;
@@ -185,5 +185,23 @@ lemma embed_Classical_S4 {p : Intuitionistic.Formula α} : (∅ ⊢ᶜ! p) ↔ (
     rw [←GTranslation.neg_def] at this;
     have := ModalCompanion_Int_S4.mpr this;
     exact glivenko.mp this;
+
+def AxiomSet.ModalDisjunctive (Λ : AxiomSet α) : Prop := ∀ {p q : Formula α}, (∅ ⊢ᴹ[Λ]! □p ⋎ □q) → (∅ ⊢ᴹ[Λ]! p) ∨ (∅ ⊢ᴹ[Λ]! q)
+
+lemma disjunctive_of_modalDisjunctive
+  (iΛ : Intuitionistic.AxiomSet α) (mΛ : AxiomSet α) (hK4 : 𝐊𝟒 ⊆ mΛ)
+  (hComp : ModalCompanion iΛ mΛ)
+  (hMDisj : mΛ.ModalDisjunctive)
+  : iΛ.Disjunctive := by
+  simp only [AxiomSet.ModalDisjunctive, Intuitionistic.AxiomSet.Disjunctive];
+  intro p q hpq;
+  have : ∅ ⊢ᴹ[mΛ]! pᵍ ⋎ qᵍ := by simpa [GTranslation] using hComp.mp hpq;
+  have : ∅ ⊢ᴹ[mΛ]! □pᵍ ⋎ □qᵍ := by
+    have dp : ∅ ⊢ᴹ[mΛ]! pᵍ ⟶ (□pᵍ ⋎ □qᵍ) := Deduction.maxm_subset! hK4 $ imp_trans'! (by apply intAxiom4) (by apply disj₁!);
+    have dq : ∅ ⊢ᴹ[mΛ]! qᵍ ⟶ (□pᵍ ⋎ □qᵍ) := Deduction.maxm_subset! hK4 $ imp_trans'! (by apply intAxiom4) (by apply disj₂!);
+    exact disj₃'! dp dq (by assumption);
+  cases hMDisj this with
+  | inl h => left; exact hComp.mpr h;
+  | inr h => right; exact hComp.mpr h;
 
 end LO.Modal.Normal
