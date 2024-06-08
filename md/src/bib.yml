@@ -1,0 +1,198 @@
+boolos1993:
+  type: book
+  title: "The Logic of Provability"
+  author: Boolos, George
+  date: 1993
+  publisher: Cambridge University Press
+
+openlogic:
+  type: book
+  title: The Open Logic Text
+  author: Open Logic Project
+
+guo_chen_bentzen2023:
+  type: article
+  title: "Verified completeness in Henkin-style for intuitionistic propositional logic"
+  author:
+    - Guo, Huayu
+    - Chen, Dongheng
+    - Bentzen, Bruno
+  date: 2023
+  serial-issue:
+    arxiv: 2310.01916
+
+blackgurn_rijke_venema2014:
+  type: book
+  title: "Modal logic"
+  author:
+    - Blackgurn, Patrick
+    - de Rijke, Maarten
+    - Venema, Yde
+  date: 2001
+  publisher: Cambridge University Press
+
+kikuchi_etal2016:
+  type: book
+  title: "数学における証明と真理 ─ 様相論理と数学基礎論"
+  author:
+    - 菊池, 誠
+    - 佐野, 勝彦
+    - 倉橋, 太志
+    - 薄葉, 季路
+    - 黒川, 英徳
+  publisher: 共立出版
+  date: 2016
+  language: ja
+  serial-issue:
+    isbn: 9784320111486
+
+chagrov_zakharyaschev1997:
+  type: book
+  title: "Modal logic"
+  author:
+    - Chagrov, Alexander
+    - Zakharyaschev, Michael
+  date: 1997-03
+  publisher: "Oxford University Press"
+  serial-issue:
+    doi: 10.1093/oso/9780198537793.003.0003
+    isbn: 9780198537793
+  parent:
+    type: anthology
+    title: "Oxford Logic Guides"
+    volume: 35
+
+kaye1991:
+  type: book
+  title: "Models of Peano Arithmetic"
+  author:
+    - Kaye, Richard
+  publisher: Clarendon Press
+  date: 1991
+
+hájek_pudlák1998:
+  type: book
+  title: "Metamathematics of First-Order Arithmetic"
+  author:
+    - Hájek, Petr
+    - Pudlák, Pavel
+  date: 1998
+
+pohlers2009:
+  type: book
+  title: "Proof Theory - The First Step into Impredicativity"
+  author:
+    - Pohlers, Wolfram
+  date: 2009
+  serial-issue:
+    doi: 10.1007/978-3-540-69319-2
+
+han_vandoorn2019:
+  type: article
+  title: "A formalization of forcing and the unprovability of the continuum hypothesis"
+  author:
+    - Han, Jesse Michael
+    - van Doorn, Floris
+  date: 2019
+  serial-issue:
+    arxiv: 1904.10570
+
+tanaka2007:
+  type: book
+  title: "不完全性定理と算術の体系"
+  author:
+    - 田中, 一之
+    - 鹿島, 亮
+    - 山崎, 武
+    - 白旗, 優
+  date: 2007
+  publisher: 東京大学出版会
+  language: ja
+  parent:
+    type: anthology
+    title: ゲーデルと20世紀の論理学
+    editor: 田中, 一之
+    volume: 3
+
+mckinsey_tarski_1948:
+  type: article
+  title: "Some theorems about the sentential calculi of lewis and heyting"
+  author:
+    - McKinsey, John Charles Chenoweth
+    - Tarski, Alfred
+  date: 1948
+  serial-issue:
+    doi: 10.2307/2268135
+  parent:
+    type: periodical
+    title: "The Journal of Symbolic Logic"
+    volume: 13
+    issue: 1
+    pages: 1--15
+
+gödel_1932:
+  type: article
+  title: "Zum intuitionistischen Aussagenkalk"
+  author: Gödel, Kurt
+  date: 1932
+  parent:
+    type: periodical
+    title: "Anzeiger der Akademie der Wissenschaften in Wien"
+    pages: 65--66
+    volume: 69
+
+gödel_1933:
+  type: article
+  title: "Eine Interpretation des intuitionistischen Aussagenkalküls"
+  author: Gödel, Kurt
+  date: 1933
+
+gentzen_1935:
+  type: article
+  title: "Untersuchungen über das logische Schließen. I"
+  author: Gentzen, Gerhard
+  date: 1935
+  serial-issue:
+    doi: 10.1007/BF01201353
+  parent:
+    tpye: periodical
+    title: "Mathematische Zeitschrift"
+    volume: 39
+    page: 176--210
+
+zakharyaschev1989:
+  type: article
+  title: "Modal companions of superintuitionistic logics: Syntax, semantics and preservation theorems"
+  author: Zakharyaschev, Michael
+  date: 1989
+  parent:
+    type: periodical
+    title: "Matematicheskii Sbornik"
+    volume: 180
+    issue: 10
+    pages: 1415--1427
+
+macintyre_simmons1973:
+  type: article
+  title: "Gödel's diagonalization technique and related properties of theories"
+  author:
+    - Macintyre, Archibald James.
+    - Simmons, H.
+  date: 1973
+  parent:
+    type: periodical
+    title: "Colloquium Mathematicae"
+    volume: 28
+    issue: 2
+
+makinson1971:
+  type: article
+  title: "Some embedding theorems for modal logic"
+  author: Makinson, David.
+  date: 1971
+  parent:
+    type: periodical
+    title: "Notre Dame Journal of Formal Logic"
+    volume: 12
+    issue: 2
+    page: 252--254
