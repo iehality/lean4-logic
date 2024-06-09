@@ -357,6 +357,17 @@ instance : HasHenkinRule (α := α) 𝐊𝟒(𝐇) where
 instance : System.K4Henkin (𝐊𝟒(𝐇) : DeductionParameter α) where
   Four _ := Deduction.maxm $ Set.mem_of_subset_of_mem (by rfl) (by simp)
 
+/-- Solovey's Truth Provability Logic, remark necessitation is *not* permitted. -/
+protected abbrev GLS : DeductionParameter α where
+  axiomSet := System.theory 𝐆𝐋 ∪ 𝗧
+  rules := ⟨false, false, false⟩
+notation "𝐆𝐋𝐒" => DeductionParameter.GLS
+instance : System.HasAxiomK (𝐆𝐋𝐒 : DeductionParameter α) where
+  K _ _ := Deduction.maxm $ Set.mem_of_subset_of_mem (by rfl) $ by simp [System.theory, System.axiomK!];
+instance : System.HasAxiomL (𝐆𝐋𝐒 : DeductionParameter α) where
+  L _ := Deduction.maxm $ Set.mem_of_subset_of_mem (by rfl) $ by simp [System.theory, System.axiomK!];
+instance : System.HasAxiomT (𝐆𝐋𝐒 : DeductionParameter α) where
+  T _ := Deduction.maxm $ Set.mem_of_subset_of_mem (by rfl) (by simp)
 
 end DeductionParameter
 
@@ -508,5 +519,10 @@ lemma reducible_K4Henkin_GL : (𝐊𝟒𝐇 : DeductionParameter α) ≤ₛ 𝐆
   . obtain ⟨_, _, e⟩ := hH; subst_vars; exact axiomH!;
 
 end GL
+
+lemma reducible_GL_GLS : (𝐆𝐋 : DeductionParameter α) ≤ₛ 𝐆𝐋𝐒 := by
+  apply System.reducible_iff.mpr;
+  intro p h;
+  exact ⟨Deduction.maxm (by left; exact h)⟩;
 
 end LO.Modal.Standard
