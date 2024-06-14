@@ -18,9 +18,9 @@ namespace Formula
 
 variable {α : Type u}
 
-@[simp] def neg (p : Formula α) : Formula α := imp p falsum
+@[simp, match_pattern] def neg (p : Formula α) : Formula α := imp p falsum
 
-@[simp] def dia (p : Formula α) : Formula α := neg (box (neg p))
+@[simp, match_pattern] def dia (p : Formula α) : Formula α := neg (box (neg p))
 
 instance : StandardModalLogicalConnective (Formula α) where
   tilde := neg
@@ -46,6 +46,8 @@ def toStr : Formula α → String
   | ⊤       => "\\top"
   | ⊥       => "\\bot"
   | atom a  => "{" ++ toString a ++ "}"
+  | dia p  => "\\Diamond " ++ toStr p
+  | neg p  => "\\neg " ++ toStr p
   | p ⟶ q   => "\\left(" ++ toStr p ++ " \\to "   ++ toStr q ++ "\\right)"
   | p ⋏ q   => "\\left(" ++ toStr p ++ " \\land " ++ toStr q ++ "\\right)"
   | p ⋎ q   => "\\left(" ++ toStr p ++ " \\lor "   ++ toStr q ++ "\\right)"
@@ -212,9 +214,15 @@ end Decidable
 
 def isBox : Formula α → Bool
   | box _ => true
-  | _  => false
+  | _   => false
+
+def isDia : Formula α → Bool
+  | dia _ => true
+  | _   => false
 
 end Formula
+
+abbrev Formulae (α) := List (Formula α)
 
 abbrev Theory (α) := Set (Formula α)
 

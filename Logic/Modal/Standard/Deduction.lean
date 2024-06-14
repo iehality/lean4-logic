@@ -516,4 +516,104 @@ end GL
 
 end Reducible
 
+
+section CNF_DNF
+
+def Formulae.isMNF (Γ : Formulae α) := Γ.all (λ p => p.isBox ∨ p.isDia ∨ p.degree = 0)
+
+namespace Formulae.isMNF
+
+@[simp] lemma top_singleton : isMNF ([⊤] : Formulae α) := by simp [isMNF];
+@[simp] lemma bot_singleton : isMNF ([⊥] : Formulae α) := by simp [isMNF];
+@[simp] lemma atom_singleton {a : α} : isMNF ([a] : Formulae α) := by simp [isMNF];
+@[simp] lemma box_singleton {p : Formula α} : isMNF ([□p] : Formulae α) := by simp [isMNF, Formula.isBox];
+@[simp] lemma dia_singleton {p : Formula α} : isMNF ([◇p] : Formulae α) := by simp [isMNF, Formula.isDia];
+
+@[simp]
+lemma cons {Γ Δ : Formulae α} (hΓ : Γ.isMNF) (hΔ : Δ.isMNF) : (Γ ++ Δ).isMNF := by
+  simp_all [isMNF];
+  intro p hp;
+  cases hp with
+  | inl hp => exact hΓ p hp;
+  | inr hp => exact hΔ p hp
+
+end Formulae.isMNF
+
+
+def Formula.CNF (p : Formula α) : Prop := ∃ (Γ : Formulae α), p = Γ.conj' ∧ Γ.isMNF
+
+namespace Formula.CNF
+
+@[simp] lemma top : (⊤ : Formula α).CNF := ⟨[⊤], rfl, by simp⟩
+@[simp] lemma bot : (⊥ : Formula α).CNF := ⟨[⊥], rfl, by simp⟩
+@[simp] lemma atom {a : α} : (atom a).CNF := ⟨[a], rfl, by simp⟩
+@[simp] lemma box {p : Formula α} : (□p).CNF := ⟨[□p], rfl, by simp⟩
+@[simp] lemma dia {p : Formula α} : (◇p).CNF := ⟨[◇p], rfl, by simp⟩
+
+end Formula.CNF
+
+
+def Formula.DNF (p : Formula α) : Prop := ∃ (Γ : Formulae α), p = Γ.disj' ∧ Γ.isMNF
+
+namespace Formula.DNF
+
+@[simp] lemma top : (⊤ : Formula α).DNF := ⟨[⊤], rfl, by simp⟩
+@[simp] lemma bot : (⊥ : Formula α).DNF := ⟨[⊥], rfl, by simp⟩
+@[simp] lemma atom {a : α} : (atom a).DNF := ⟨[a], rfl, by simp⟩
+@[simp] lemma box {p : Formula α} : (□p).DNF := ⟨[□p], rfl, by simp⟩
+@[simp] lemma dia {p : Formula α} : (◇p).DNF := ⟨[◇p], rfl, by simp⟩
+
+end Formula.DNF
+
+
+variable {𝓓 : DeductionParameter α} [𝓓.Normal]
+
+lemma exists_CNF_DNF (p : Formula α) : ∃ qc, ∃ qd, (𝓓 ⊢! p ⟷ qc ∧ qc.CNF) ∧ (𝓓 ⊢! p ⟷ qd ∧ qd.DNF) := by
+  induction p using Formula.rec' with
+  | hVerum => use ⊤, ⊤; simp;
+  | hfalsum => use ⊥, ⊥; simp;
+  | hatom a => use a, a; simp;
+  | hbox p ihp => use □p, □p; simp;
+  | hand p q ihp ihq =>
+    obtain ⟨pc, pd, ⟨hpc₁, pcCNF⟩, ⟨hpd₁, pdDNF⟩⟩ := ihp;
+    obtain ⟨qc, qd, ⟨hqc₁, qcCNF⟩, ⟨hqd₁, qdDNF⟩⟩ := ihq;
+
+    obtain ⟨C, hC₁, hC₂⟩ := pcCNF;
+    obtain ⟨D, hD₁, hD₂⟩ := pdDNF;
+
+    use (pc ⋏ qc), (pd ⋏ qd);
+    constructor;
+    . constructor;
+      . apply and_replace_iff! hpc₁ hqc₁;
+      . simp [Formula.CNF];
+        use (C ++ D);
+        constructor;
+        . sorry;
+        . simp_all only [Formulae.isMNF.cons];
+    . sorry;
+  | hor p q ihp ihq =>
+    obtain ⟨pc, pd, ⟨hpc₁, hpc₂⟩, ⟨hpd₁, hpd₂⟩⟩ := ihp;
+    obtain ⟨qc, qd, ⟨hqc₁, hqc₂⟩, ⟨hqd₁, hqd₂⟩⟩ := ihq;
+    use (pc ⋎ qc), (pd ⋎ qd);
+    constructor;
+    . sorry;
+    . constructor;
+      . apply or_replace_iff! hpd₁ hqd₁;
+      . obtain ⟨Γ, hΓ₁, hΓ₂⟩ := hpd₂;
+        obtain ⟨Δ, hΔ₁, hΔ₂⟩ := hqd₂;
+        simp [Formula.DNF];
+        use (Γ ++ Δ);
+        constructor;
+        . sorry;
+        . simp_all only [Formulae.isMNF.cons];
+  | himp p q ihp ihq =>
+    obtain ⟨p', hp, hpCNF⟩ := ihp;
+    obtain ⟨q', hq, hqCNF⟩ := ihq;
+    use (p' ⟶ q');
+    constructor;
+    . sorry;
+    . sorry
+
+end CNF_DNF
+
 end LO.Modal.Standard
