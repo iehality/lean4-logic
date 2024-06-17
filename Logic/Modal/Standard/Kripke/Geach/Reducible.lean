@@ -4,6 +4,8 @@ import Logic.Modal.Standard.Kripke.Geach.Completeness
 
 namespace LO.Modal.Standard
 
+open System (not_reducible_iff)
+open Formula
 open Kripke
 open AxiomSet
 
@@ -15,7 +17,7 @@ variable {L₁ L₂ : DeductionParameter α} [geach₁ : L₁.IsGeach] [geach₂
 
 lemma reducible_of_geach_defnability
   (hs : ∀ {F : Frame.{u}}, MultiGeachConfluent geach₂.taples F → MultiGeachConfluent geach₁.taples F)
-  : (L₁ ≤ₛ L₂) := reducible_of_definability (definability₁ := instGeachDefinability) (definability₂ := instGeachDefinability) hs
+  : (L₁ ≤ₛ L₂) := reducible_of_definability (α := α) (definability₁ := instGeachDefinability) (definability₂ := instGeachDefinability) hs
 
 
 lemma equiv_of_geach_defnability
@@ -24,71 +26,86 @@ lemma equiv_of_geach_defnability
 
 end
 
-@[simp]
 theorem reducible_KD_KT : (𝐊𝐃 : DeductionParameter α) ≤ₛ 𝐊𝐓 := by apply reducible_of_geach_defnability; simp_all [serial_of_refl];
 
-@[simp]
+variable {W : Type u} [Inhabited W]
+
+lemma unprovable_of_exists_frame {𝓓 : DeductionParameter α} [𝓓.HasNecOnly] {p : Formula α} (h : ∃ (F : Frame' α), F ∈ 𝔽(Ax(𝓓)) ∧ ¬F ⊧ p) : 𝓓 ⊬! p := by
+  apply not_imp_not.mpr $ sound!_on_frameclass;
+  simpa;
+
+
+theorem strict_reducible_KD_KT [atleast : AtLeast 2 W] : (𝐊𝐃 : DeductionParameter α) <ₛ 𝐊𝐓 := by
+  constructor;
+  . apply reducible_KD_KT;
+  . apply not_reducible_iff.mpr;
+    obtain ⟨f, finv, fInj⟩ := atleast.mapping;
+    use (□(atom default) ⟶ (atom default));
+    constructor;
+    . exact ⟨Deduction.maxm (by simp)⟩
+    . apply unprovable_of_exists_frame;
+      use { World := W, Rel := λ _ y => y = f 1 };
+      constructor;
+      . apply iff_definability_memAxiomSetFrameClass (by simpa using instGeachDefinability (L := 𝐊𝐃)) |>.mpr;
+        simp [Serial];
+      . simp [Formula.Kripke.ValidOnFrame, Formula.Kripke.ValidOnModel, Formula.Kripke.Satisfies];
+        use λ w _ => w = f 1;
+        constructor;
+        . rfl;
+        . use (f 0);
+          exact fInj.injective.ne (by simp)
+
+theorem  strict_reducible_K4_S4 [atleast : AtLeast 2 W] : (𝐊𝟒 : DeductionParameter α) <ₛ 𝐒𝟒 := by
+  constructor;
+  . apply reducible_K4_S4;
+  . apply not_reducible_iff.mpr;
+    obtain ⟨f, finv, fInj⟩ := atleast.mapping;
+    use (□(atom default) ⟶ (atom default));
+    constructor;
+    . simp;
+    . apply unprovable_of_exists_frame;
+      use { World := W, Rel := λ _ y => y = f 1 };
+      constructor;
+      . apply iff_definability_memAxiomSetFrameClass (by simpa using instGeachDefinability (L := 𝐊𝟒)) |>.mpr;
+        simp [Transitive];
+      . simp [Formula.Kripke.ValidOnFrame, Formula.Kripke.ValidOnModel, Formula.Kripke.Satisfies];
+        use λ w _ => w = f 1;
+        constructor;
+        . rfl;
+        . use (f 0);
+          exact fInj.injective.ne (by simp);
+
 theorem reducible_S4_S5 : (𝐒𝟒 : DeductionParameter α) ≤ₛ 𝐒𝟓 := by apply reducible_of_geach_defnability; simp_all [trans_of_refl_eucl];
 
-@[simp]
-theorem equiv_S5_KT4B : (𝐒𝟓 : DeductionParameter α) =ₛ 𝐊𝐓𝟒𝐁 := by apply equiv_of_geach_defnability; intros; constructor <;> simp_all [symm_of_refl_eucl, trans_of_refl_eucl, eucl_of_symm_trans];
 
-/- TODO: strict reducible
-theorem LogicalStrictStrong.KD_KT [hβ : Nontrivial β] : (𝐊𝐃 : AxiomSet β) <ᴸ 𝐊𝐓 := by
+theorem strict_reducible_S4_S5 [atleast : AtLeast 3 W] : (𝐒𝟒 : DeductionParameter α) <ₛ 𝐒𝟓 := by
   constructor;
-  . simp;
-  . obtain ⟨x, y, hxy⟩ := hβ.exists_pair_ne
-    simp only [LogicalStrong, not_forall];
-    use (□(Formula.atom default) ⟶ (Formula.atom default));
-    use ⟨Deduction.maxm (by simp)⟩
-    apply not_imp_not.mpr $ AxiomSet.sounds;
-    simp [Formula.FrameClassConsequence];
-    existsi (λ _ w₂ => w₂ = y);
-    constructor;
-    . simp only [AxiomSetFrameClass.geach];
-      apply GeachLogic.frameClassDefinability_aux.mp;
-      simp [Serial];
-    . simp [Formula.FrameConsequence];
-      use (λ w _ => w = y);
-      simp;
-      use x;
-
-theorem LogicalStrictStrong.K4_S4 [hβ : Nontrivial β] : (𝐊𝟒 : AxiomSet β) <ᴸ 𝐒𝟒 := by
-  constructor;
-  . apply LogicalStrong.of_subset; simp;
-  . obtain ⟨x, y, hxy⟩ := hβ.exists_pair_ne;
-    simp only [LogicalStrong, not_forall];
-    use (□(Formula.atom default) ⟶ (Formula.atom default));
-    use ⟨Deduction.maxm (by simp)⟩
-    apply not_imp_not.mpr $ AxiomSet.sounds;
-    simp [Formula.FrameClassConsequence];
-    existsi (λ _ w₂ => w₂ = y);
-    constructor;
-    . simp only [AxiomSetFrameClass.geach];
-      apply GeachLogic.frameClassDefinability_aux.mp;
-      simp [Transitive];
-    . simp [Formula.FrameConsequence];
-      use (λ w _ => w = y);
-      simp;
-      use x;
-
-theorem LogicalStrictStrong.S4_S5 : (𝐒𝟒 : AxiomSet (Fin 3)) <ᴸ 𝐒𝟓 := by
-  constructor;
-  . simp;
-  . simp only [LogicalStrong, not_forall];
+  . apply reducible_S4_S5;
+  . apply not_reducible_iff.mpr;
+    obtain ⟨f, finv, fInj⟩ := atleast.mapping;
     existsi (◇(Formula.atom default) ⟶ □◇(Formula.atom default));
-    use ⟨Deduction.maxm (by simp)⟩;
-    apply not_imp_not.mpr $ AxiomSet.sounds;
-    simp [Formula.FrameClassConsequence];
-    existsi (λ w₁ w₂ => (w₁ = w₂) ∨ (w₁ = 0 ∧ w₂ = 1) ∨ (w₁ = 0 ∧ w₂ = 2));
     constructor;
-    . simp only [AxiomSetFrameClass.geach];
-      apply GeachLogic.frameClassDefinability_aux.mp;
-      simp [Reflexive, Transitive];
-      aesop;
-    . simp [Formula.FrameConsequence];
-      use (λ w₁ w₂ => (w₁ = w₂) ∨ (w₁ = 0 ∧ w₂ = 1) ∨ (w₁ = 0 ∧ w₂ = 2));
-      aesop;
--/
+    . sorry;
+    . apply unprovable_of_exists_frame;
+      use { World := W, Rel := λ x y => (x = y) ∨ (x = (f 0) ∧ y = (f 1)) ∨ (x = (f 0) ∧ y = (f 2))};
+      constructor;
+      . apply iff_definability_memAxiomSetFrameClass (by simpa using instGeachDefinability (L := 𝐒𝟒)) |>.mpr;
+        simp [Reflexive, Transitive];
+        aesop;
+      . simp [Formula.Kripke.ValidOnFrame, Formula.Kripke.ValidOnModel, Formula.Kripke.Satisfies];
+        use λ w _ => w = f 2, f 0;
+        constructor;
+        . use f 2;
+          constructor;
+          . right; simp;
+          . rfl;
+        . use f 2;
+          constructor;
+          . aesop;
+          . intro x hx;
+            sorry;
+            -- exact fInj.injective.ne (by simp);
+
+theorem equiv_S5_KT4B : (𝐒𝟓 : DeductionParameter α) =ₛ 𝐊𝐓𝟒𝐁 := by apply equiv_of_geach_defnability; intros; constructor <;> simp_all [symm_of_refl_eucl, trans_of_refl_eucl, eucl_of_symm_trans];
 
 end LO.Modal.Standard

@@ -9,13 +9,13 @@ namespace Kripke
 
 structure Frame where
   World : Type u
-  World_nonempty : Nonempty World := by infer_instance
+  World_inhabited : Inhabited World := by infer_instance
   Rel : World → World → Prop
 
 structure FiniteFrame extends Frame where
   World_finite : Finite World := by infer_instance
 
-instance (F : Frame) : Nonempty F.World := F.World_nonempty
+instance (F : Frame) : Inhabited F.World := F.World_inhabited
 
 instance : CoeSort Frame (Type _) where coe := Frame.World
 

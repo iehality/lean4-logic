@@ -9,7 +9,7 @@ open Formula Formula.Kripke
 variable {α} [Inhabited α] [DecidableEq α]
 
 variable {F : Kripke.Frame' α}
-variable [atleast : Atleast 2 α]
+variable [atleast : AtLeast 2 α]
 
 private lemma AxiomSet.Dot3.definability.implies : F ⊧* .𝟯 → Connected F.Rel := by
   contrapose;

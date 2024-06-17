@@ -153,21 +153,25 @@ instance : L.Normal := by
 @[simp]
 lemma eq_axiomset : Ax(L) = 𝗚𝗲(IsGeach.taples L) := by have := geach.char; simp_all;
 
-instance : DeductionParameter.IsGeach (α := α) 𝐊 where taples := [];
+open DeductionParameter (IsGeach)
 
-instance : DeductionParameter.IsGeach (α := α) 𝐊𝐃 where taples := [⟨0, 0, 1, 1⟩]
+instance : IsGeach (α := α) 𝐊 where taples := [];
 
-instance : DeductionParameter.IsGeach (α := α) 𝐊𝐓 where taples := [⟨0, 0, 1, 0⟩]
+instance : IsGeach (α := α) 𝐊𝐃 where taples := [⟨0, 0, 1, 1⟩]
 
-instance : DeductionParameter.IsGeach (α := α) 𝐒𝟒 where taples := [⟨0, 0, 1, 0⟩, ⟨0, 2, 1, 0⟩]
+instance : IsGeach (α := α) 𝐊𝐓 where taples := [⟨0, 0, 1, 0⟩]
 
-instance : DeductionParameter.IsGeach (α := α) 𝐒𝟒.𝟐 where taples := [⟨0, 0, 1, 0⟩, ⟨0, 2, 1, 0⟩, ⟨1, 1, 1, 1⟩]
+instance : IsGeach (α := α) 𝐊𝟒 where taples := [⟨0, 2, 1, 0⟩]
 
-instance : DeductionParameter.IsGeach (α := α) 𝐒𝟓 where taples := [⟨0, 0, 1, 0⟩, ⟨1, 1, 0, 1⟩]
+instance : IsGeach (α := α) 𝐒𝟒 where taples := [⟨0, 0, 1, 0⟩, ⟨0, 2, 1, 0⟩]
 
-instance : DeductionParameter.IsGeach (α := α) 𝐊𝐓𝟒𝐁 where taples := [⟨0, 0, 1, 0⟩, ⟨0, 2, 1, 0⟩, ⟨0, 1, 0, 1⟩]
+instance : IsGeach (α := α) 𝐒𝟒.𝟐 where taples := [⟨0, 0, 1, 0⟩, ⟨0, 2, 1, 0⟩, ⟨1, 1, 1, 1⟩]
 
-instance : DeductionParameter.IsGeach (α := α) 𝐓𝐫𝐢𝐯 where taples := [⟨0, 0, 1, 0⟩, ⟨0, 1, 0, 0⟩]
+instance : IsGeach (α := α) 𝐒𝟓 where taples := [⟨0, 0, 1, 0⟩, ⟨1, 1, 0, 1⟩]
+
+instance : IsGeach (α := α) 𝐊𝐓𝟒𝐁 where taples := [⟨0, 0, 1, 0⟩, ⟨0, 2, 1, 0⟩, ⟨0, 1, 0, 1⟩]
+
+instance : IsGeach (α := α) 𝐓𝐫𝐢𝐯 where taples := [⟨0, 0, 1, 0⟩, ⟨0, 1, 0, 0⟩]
 
 end IsGeach
 

@@ -6,7 +6,7 @@ namespace LO.Modal.Standard
 namespace Kripke
 
 variable
-  {α : Type u} [DecidableEq α]
+  {α : Type*} [DecidableEq α]
   {L₁ L₂ : DeductionParameter α} [L₁.HasNec] [L₂.HasNec]
   {P₁ P₂ : FrameProperty}
   [sound₁ : Sound L₁ 𝔽(Ax(L₁))] [sound₂ : Sound L₂ 𝔽(Ax(L₂))]
@@ -20,7 +20,7 @@ lemma reducible_of_subset_axiomSetFrameClass (hs : ∀ {F}, F ∈ 𝔽(Ax(L₂))
   intro F hF;
   exact sound₁.sound hp F $ hs hF;
 
-lemma reducible_of_definability (hs : ∀ {F : Frame}, P₂ F → P₁ F) : L₁ ≤ₛ L₂ := by
+lemma reducible_of_definability (hs : ∀ {F}, P₂ F → P₁ F) : L₁ ≤ₛ L₂ := by
   apply reducible_of_subset_axiomSetFrameClass;
   intro F hF;
   apply iff_definability_memAxiomSetFrameClass definability₁ |>.mpr;
