@@ -220,7 +220,7 @@ abbrev Theory (α) := Set (Formula α)
 
 instance : Collection (Formula α) (Theory α) := inferInstance
 
-
+/-
 abbrev AxiomSet (α) := Set (Formula α)
 
 namespace AxiomSet
@@ -278,5 +278,6 @@ protected abbrev H : AxiomSet α := { Axioms.H p | p }
 notation "𝗛" => AxiomSet.H
 
 end AxiomSet
+-/
 
 end LO.Modal.Standard

@@ -1,5 +1,5 @@
 import Logic.Modal.Standard.Formula
-import Logic.Modal.Standard.Deduction
+import Logic.Modal.Standard.Deduction2
 import Logic.Modal.Standard.HilbertStyle
 import Logic.Propositional.Superintuitionistic.Kripke.Classical
 
@@ -83,7 +83,7 @@ end VerTranslation
 end Formula
 
 
-open Deduction
+open DeductionSystem DeductionSystem.Axioms
 
 variable {p : Formula α}
 

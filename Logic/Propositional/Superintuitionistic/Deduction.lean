@@ -1,11 +1,11 @@
-import Logic.Logic.HilbertStyle.Basic
-import Logic.Logic.HilbertStyle.Supplemental
+import Logic.Logic.Deduction
 import Logic.Propositional.Superintuitionistic.Formula
 
 namespace LO.Propositional.Superintuitionistic
 
 variable {α : Type u} [DecidableEq α]
 
+/-
 structure DeductionParameter (α) where
   axiomSet : AxiomSet α
 notation "Ax(" 𝓓 ")" => DeductionParameter.axiomSet 𝓓
@@ -96,13 +96,19 @@ protected abbrev WeakClassical : DeductionParameter α := { axiomSet := 𝗣𝗲
 
 
 end DeductionParameter
-
+-/
 
 open System
+open DeductionSystem
 
-lemma reducible_efq_dne : (𝐈𝐧𝐭 : DeductionParameter α) ≤ₛ 𝐂𝐥 := by
+lemma reducible_efq_dne : (𝐢𝐏𝐋 : Rules (Formula α)) ≤ₛ 𝐜𝐏𝐋 := by
   rintro p hp;
-  simp [System.theory];
+  simp_all [System.theory];
+  induction hp using Deduction.inducition! with
+  | rule _ hr hant ih =>
+    simp at hr;
+    sorry;
+  /-
   induction hp.some with
   | eaxm h =>
     obtain ⟨q, hq⟩ := by simpa using h;
@@ -110,6 +116,7 @@ lemma reducible_efq_dne : (𝐈𝐧𝐭 : DeductionParameter α) ≤ₛ 𝐂𝐥
     apply efq!;
   | mdp h₁ h₂ ih₁ ih₂ => exact (ih₁ ⟨h₁⟩) ⨀ (ih₂ ⟨h₂⟩);
   | _ => simp;
+  -/
 
 variable {p : Formula α}
 

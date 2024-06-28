@@ -1,7 +1,9 @@
-import Logic.Modal.Standard.Deduction
+import Logic.Modal.Standard.Deduction2
 import Logic.Modal.Standard.HilbertStyle
 
 namespace LO.Modal.Standard
+
+open DeductionSystem
 
 variable [DecidableEq α]
 
@@ -21,20 +23,25 @@ open StandardModalLogicalConnective (boxdot)
 
 variable {p : Formula α}
 
+
 lemma boxdotTranslatedK4_of_S4 (h : 𝐒𝟒 ⊢! p) : 𝐊𝟒 ⊢! pᵇ := by
-  induction h using Deduction.inducition_with_necOnly! with
-  | hMaxm a =>
-    rcases a with (hK | hT | hFour);
-    . obtain ⟨_, _, e⟩ := hK; subst_vars; dsimp [Axioms.K, BoxdotTranslation]; apply boxdot_axiomK!;
-    . obtain ⟨_, e⟩ := hT; subst_vars; dsimp [Axioms.T, BoxdotTranslation]; apply boxdot_axiomT!;
-    . obtain ⟨_, e⟩ := hFour; subst_vars; dsimp [Axioms.Four, BoxdotTranslation]; apply boxdot_axiomFour!;
-  | hNec ihp =>
-    dsimp [BoxdotTranslation];
-    exact boxdot_nec! $ ihp;
-  | hMdp ihpq ihp =>
-    dsimp [BoxdotTranslation] at ihpq ihp;
-    exact ihpq ⨀ ihp;
-  | _ => dsimp [BoxdotTranslation]; trivial;
+  have : System.S4 (𝐒𝟒 : Rules (Formula α)) := inferInstance
+  induction h using Deduction.inducition! with
+  | rule r hr hant ih =>
+    rcases hr with ((((hPL | hK) | hNec) | hT) | h4);
+    . sorry;
+    . obtain ⟨_, ⟨p, q, _⟩, _⟩ := hK; subst_vars;
+      simp only [DeductionSystem.Axioms.K, Formula.BoxdotTranslation, boxdot_axiomK!];
+    . obtain ⟨q, ⟨_, _, _⟩, _⟩ := hNec;
+      simp only [BoxdotTranslation];
+      apply boxdot_nec!;
+      exact ih (by simp);
+    . obtain ⟨_, ⟨p, _, _⟩, _⟩ := hT; subst_vars;
+      simp only [DeductionSystem.Axioms.T, Formula.BoxdotTranslation, boxdot_axiomT!];
+    . obtain ⟨_, ⟨p, _, _⟩, _⟩ := h4;
+      subst_vars;
+      sorry; -- simp only [DeductionSystem.Axioms.Four, Formula.BoxdotTranslation, boxdot_axiomFour!];
+
 
 lemma iff_boxdotTranslation_S4 : 𝐒𝟒 ⊢! p ⟷ pᵇ := by
   induction p using Formula.rec' with

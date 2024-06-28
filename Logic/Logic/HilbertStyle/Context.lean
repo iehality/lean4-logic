@@ -77,7 +77,7 @@ lemma provable_iff {p : F} : Γ ⊢[𝓢]! p ↔ 𝓢 ⊢! Γ.conj' ⟶ p := iff
 
 section minimal
 
-variable [Minimal 𝓢] {Γ Δ E : List F}
+variable [System.Minimal 𝓢] {Γ Δ E : List F}
 
 instance : Axiomatized (FiniteContext F 𝓢) where
   prfAxm := fun hp ↦ generalConj' hp
@@ -110,9 +110,10 @@ def id : [p] ⊢[𝓢] p := byAxm
 
 @[simp] lemma id! : [p] ⊢[𝓢]! p := by_axm!
 
-instance minimal (Γ : FiniteContext F 𝓢) : Minimal Γ where
+instance minimal (Γ : FiniteContext F 𝓢) : System.Minimal Γ where
   mdp := mdp₁
   verum := of verum
+  neg_equiv := fun _ ↦ of neg_equiv
   imply₁ := fun _ _ ↦ of imply₁
   imply₂ := fun _ _ _ ↦ of imply₂
   and₁ := fun _ _ ↦ of and₁
@@ -162,23 +163,15 @@ instance [System.NegationEquiv 𝓢] (Γ : FiniteContext F 𝓢) : System.Negati
 
 instance [HasEFQ 𝓢] (Γ : FiniteContext F 𝓢) : HasEFQ Γ := ⟨fun _ ↦ of efq⟩
 
-instance [HasWeakLEM 𝓢] (Γ : FiniteContext F 𝓢) : HasWeakLEM Γ := ⟨fun p ↦ of (HasWeakLEM.wlem p)⟩
-
-instance [HasGD 𝓢] (Γ : FiniteContext F 𝓢) : HasGD Γ := ⟨fun p q ↦ of (HasGD.GD p q)⟩
-
 instance [HasDNE 𝓢] (Γ : FiniteContext F 𝓢) : HasDNE Γ := ⟨fun p ↦ of (HasDNE.dne p)⟩
 
 instance [HasEFQ 𝓢] : DeductiveExplosion (FiniteContext F 𝓢) := inferInstance
 
 end minimal
 
-instance [Intuitionistic 𝓢] (Γ : FiniteContext F 𝓢) : Intuitionistic Γ where
+instance [System.Intuitionistic 𝓢] (Γ : FiniteContext F 𝓢) : System.Intuitionistic Γ where
 
-instance [WeakLEM 𝓢] (Γ : FiniteContext F 𝓢) : WeakLEM Γ where
-
-instance [GD 𝓢] (Γ : FiniteContext F 𝓢) : GD Γ where
-
-instance [Classical 𝓢] (Γ : FiniteContext F 𝓢) : Classical Γ where
+instance [System.Classical 𝓢] (Γ : FiniteContext F 𝓢) : System.Classical Γ where
 
 end FiniteContext
 
@@ -253,7 +246,7 @@ lemma provable_iff {p : F} : Γ *⊢[𝓢]! p ↔ ∃ Δ : List F, (∀ q ∈ Δ
 
 section minimal
 
-variable [Minimal 𝓢]
+variable [System.Minimal 𝓢]
 
 instance : Axiomatized (Context F 𝓢) where
   prfAxm := fun {Γ p} hp ↦ ⟨[p], by simpa using hp, byAxm (by simp [Collection.set])⟩
@@ -300,7 +293,7 @@ def mdp {Γ : Set F} (bpq : Γ *⊢[𝓢] p ⟶ q) (bp : Γ *⊢[𝓢] p) : Γ *
 
 lemma by_axm! (h : p ∈ Γ) : Γ *⊢[𝓢]! p := System.by_axm _ (by simpa)
 
-instance minimal (Γ : Context F 𝓢) : Minimal Γ where
+instance minimal (Γ : Context F 𝓢) : System.Minimal Γ where
   mdp := mdp
   verum := of verum
   imply₁ := fun _ _ ↦ of imply₁
@@ -311,14 +304,11 @@ instance minimal (Γ : Context F 𝓢) : Minimal Γ where
   or₁ := fun _ _ ↦ of or₁
   or₂ := fun _ _ ↦ of or₂
   or₃ := fun _ _ _ ↦ of or₃
+  neg_equiv := fun _ ↦ of neg_equiv
 
 instance [System.NegationEquiv 𝓢] (Γ : Context F 𝓢) : System.NegationEquiv Γ := ⟨λ {_} => of neg_equiv⟩
 
 instance [HasEFQ 𝓢] (Γ : Context F 𝓢) : HasEFQ Γ := ⟨fun _ ↦ of efq⟩
-
-instance [HasWeakLEM 𝓢] (Γ : Context F 𝓢) : HasWeakLEM Γ := ⟨fun p ↦ of (HasWeakLEM.wlem p)⟩
-
-instance [HasGD 𝓢] (Γ : Context F 𝓢) : HasGD Γ := ⟨fun p q ↦ of (HasGD.GD p q)⟩
 
 instance [HasDNE 𝓢] (Γ : Context F 𝓢) : HasDNE Γ := ⟨fun p ↦ of (HasDNE.dne p)⟩
 
@@ -326,13 +316,9 @@ instance [HasEFQ 𝓢] : DeductiveExplosion (FiniteContext F 𝓢) := inferInsta
 
 end minimal
 
-instance [Intuitionistic 𝓢] (Γ : Context F 𝓢) : Intuitionistic Γ where
+instance [System.Intuitionistic 𝓢] (Γ : Context F 𝓢) : System.Intuitionistic Γ where
 
-instance [WeakLEM 𝓢] (Γ : Context F 𝓢) : WeakLEM Γ where
-
-instance [GD 𝓢] (Γ : Context F 𝓢) : GD Γ where
-
-instance [Classical 𝓢] (Γ : Context F 𝓢) : Classical Γ where
+instance [System.Classical 𝓢] (Γ : Context F 𝓢) : System.Classical Γ where
 
 end Context
 

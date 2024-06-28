@@ -5,7 +5,7 @@ namespace LO.System
 
 variable {F : Type*} [LogicalConnective F] [DecidableEq F]
          {S : Type*} [System F S]
-         {𝓢 : S} [Minimal 𝓢]
+         {𝓢 : S} [System.Minimal 𝓢]
          {p q r : F}
          {Γ Δ : List F}
 

@@ -1,5 +1,4 @@
 import Logic.Logic.LogicSymbol
-import Logic.Logic.HilbertStyle.Basic
 
 namespace LO.Propositional.Superintuitionistic
 
@@ -219,7 +218,7 @@ end Formula
 
 abbrev Theory (α : Type u) := Set (Formula α)
 
-
+/-
 abbrev AxiomSet (α : Type u) := Set (Formula α)
 
 namespace AxiomSet
@@ -245,7 +244,7 @@ protected abbrev DNE : AxiomSet α := { Axioms.DNE p | p }
 notation "𝗗𝗡𝗘" => AxiomSet.DNE
 
 end AxiomSet
-
+-/
 
 abbrev Context (α : Type u) := Finset (Formula α)
 
