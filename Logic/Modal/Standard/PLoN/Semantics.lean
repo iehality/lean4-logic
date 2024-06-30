@@ -182,7 +182,7 @@ lemma N_characterized : 𝐍.CharacterizedByPLoNFrameClass (AllFrameClass α) :=
   | hMaxm h => simp at h;
   | hMdp ihpq ihp => exact PLoN.ValidOnFrame.mdp ihpq ihp;
   | hNec ihp => exact PLoN.ValidOnFrame.nec ihp;
-  | hDisj₃ => exact PLoN.ValidOnFrame.disj₃;
+  | hOrElim => exact PLoN.ValidOnFrame.disj₃;
   | _ => simp_all [PLoN.Satisfies];
 
 
@@ -253,7 +253,7 @@ lemma N4_characterized : 𝐍𝟒.CharacterizedByPLoNFrameClass (TransitiveFrame
     exact validAxiomFour_of_transitive (hTrans p);
   | hMdp ihpq ihp => exact PLoN.ValidOnFrame.mdp ihpq ihp;
   | hNec ihp => exact PLoN.ValidOnFrame.nec ihp;
-  | hDisj₃ => exact PLoN.ValidOnFrame.disj₃;
+  | hOrElim => exact PLoN.ValidOnFrame.disj₃;
   | _ => simp_all [PLoN.Satisfies];
 
 lemma NRosser_characterized : 𝐍(𝐑).CharacterizedByPLoNFrameClass (SerialFrameClass α) := by
@@ -263,9 +263,13 @@ lemma NRosser_characterized : 𝐍(𝐑).CharacterizedByPLoNFrameClass (SerialFr
   induction hp using Deduction.inducition! with
   | hMaxm h => simp at h;
   | hMdp ihpq ihp => exact PLoN.ValidOnFrame.mdp ihpq ihp;
-  | hNec _ ihp => exact PLoN.ValidOnFrame.nec ihp;
-  | hRosser _ ihp => exact validRosserRule_of_serial (hSerial _) ihp;
-  | hDisj₃ => exact PLoN.ValidOnFrame.disj₃;
+  | hRules rl hrl hant ih =>
+    rcases hrl with (hNec | hRosser)
+    . obtain ⟨p, e⟩ := hNec; subst e; simp_all;
+      exact PLoN.ValidOnFrame.nec ih;
+    . obtain ⟨p, e⟩ := hRosser; subst e; simp_all;
+      exact validRosserRule_of_serial (hSerial _) ih;
+  | hOrElim => exact PLoN.ValidOnFrame.disj₃;
   | _ => simp_all [PLoN.Satisfies];
 
 -- TODO: `theory 𝐍𝟒 ∪ theory 𝐍(𝐑) = theory 𝐍𝟒(𝐑)`という事実を示せば共通部分だけで簡単に特徴づけられる気がする
@@ -278,9 +282,13 @@ lemma N4Rosser_characterized : 𝐍𝟒(𝐑).CharacterizedByPLoNFrameClass (Tra
     obtain ⟨p, e⟩ := h; subst e;
     exact validAxiomFour_of_transitive (hTrans p);
   | hMdp ihpq ihp => exact PLoN.ValidOnFrame.mdp ihpq ihp;
-  | hNec _ ihp => exact PLoN.ValidOnFrame.nec ihp;
-  | hRosser _ ihp => exact validRosserRule_of_serial (hSerial _) ihp;
-  | hDisj₃ => exact PLoN.ValidOnFrame.disj₃;
+  | hRules rl hrl hant ih =>
+    rcases hrl with (hNec | hRosser)
+    . obtain ⟨p, e⟩ := hNec; subst e; simp_all;
+      exact PLoN.ValidOnFrame.nec ih;
+    . obtain ⟨p, e⟩ := hRosser; subst e; simp_all;
+      exact validRosserRule_of_serial (hSerial _) ih;
+  | hOrElim => exact PLoN.ValidOnFrame.disj₃;
   | _ => simp_all [PLoN.Satisfies];
 
 end PLoN
