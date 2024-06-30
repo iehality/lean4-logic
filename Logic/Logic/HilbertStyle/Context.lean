@@ -24,11 +24,15 @@ abbrev disj (Γ : FiniteContext F 𝓢) : F := Γ.ctx.disj'
 
 instance : EmptyCollection (FiniteContext F 𝓢) := ⟨⟨[]⟩⟩
 
+instance : Singleton F (FiniteContext F 𝓢) := ⟨(⟨[·]⟩)⟩
+
 instance : Membership F (FiniteContext F 𝓢) := ⟨(· ∈ ·.ctx)⟩
 
 instance : HasSubset (FiniteContext F 𝓢) := ⟨(·.ctx ⊆ ·.ctx)⟩
 
 instance : Cons F (FiniteContext F 𝓢) := ⟨(· :: ·.ctx)⟩
+
+instance : Tie (FiniteContext F 𝓢) := ⟨(·.ctx ++ ·.ctx)⟩
 
 lemma mem_def {p : F} {Γ : FiniteContext F 𝓢} : p ∈ Γ ↔ p ∈ Γ.ctx := iff_of_eq rfl
 
@@ -42,6 +46,8 @@ instance : Collection F (FiniteContext F 𝓢) where
   subset_iff := List.subset_def
   not_mem_empty := by simp
   mem_cons_iff := by simp [Cons.cons, mem_def]
+  mem_singleton := by simp [singleton]
+  mem_tie_iff := by simp [tie, mem_def]
 
 instance (𝓢 : S) : System F (FiniteContext F 𝓢) := ⟨(𝓢 ⊢ ·.conj ⟶ ·)⟩
 
@@ -51,9 +57,9 @@ abbrev Provable (𝓢 : S) (Γ : List F) (p : F) : Prop := (Γ : FiniteContext F
 
 abbrev Unprovable (𝓢 : S) (Γ : List F) (p : F) : Prop := (Γ : FiniteContext F 𝓢) ⊬! p
 
-abbrev PrfSet (𝓢 : S) (Γ : List F) (s : Set F) : Type _ := (Γ : FiniteContext F 𝓢) ⊢* s
+abbrev PrfSet (𝓢 : S) (Γ : List F) {α} [Membership F α] (s : α) : Type _ := (Γ : FiniteContext F 𝓢) ⊢* s
 
-abbrev ProvableSet (𝓢 : S) (Γ : List F) (s : Set F) : Prop := (Γ : FiniteContext F 𝓢) ⊢!* s
+abbrev ProvableSet (𝓢 : S) (Γ : List F) {α} [Membership F α] (s : α) : Prop := (Γ : FiniteContext F 𝓢) ⊢!* s
 
 notation Γ:45 " ⊢[" 𝓢 "] " p:46 => Prf 𝓢 Γ p
 
@@ -87,7 +93,7 @@ instance : Compact (FiniteContext F 𝓢) where
   φ := fun {Γ} _ _ ↦ Γ
   φPrf := id
   φ_subset := by simp
-  φ_finite := by rintro ⟨Γ⟩; simp [Collection.Finite, Collection.set]
+  φ_finite := by rintro ⟨Γ⟩; simp [Collection.Finite, Precollection.set]
 
 def byAxm {p} (h : p ∈ Γ := by simp) : Γ ⊢[𝓢] p := Axiomatized.prfAxm (by simpa)
 
@@ -189,11 +195,15 @@ instance : Coe (Set F) (Context F 𝓢) := ⟨mk⟩
 
 instance : EmptyCollection (Context F 𝓢) := ⟨⟨∅⟩⟩
 
+instance : Singleton F (Context F 𝓢) := ⟨(⟨{·}⟩)⟩
+
 instance : Membership F (Context F 𝓢) := ⟨(· ∈ ·.ctx)⟩
 
 instance : HasSubset (Context F 𝓢) := ⟨(·.ctx ⊆ ·.ctx)⟩
 
 instance : Cons F (Context F 𝓢) := ⟨(⟨insert · ·.ctx⟩)⟩
+
+instance : Tie (Context F 𝓢) := ⟨(⟨·.ctx ∪ ·.ctx⟩)⟩
 
 lemma mem_def {p : F} {Γ : Context F 𝓢} : p ∈ Γ ↔ p ∈ Γ.ctx := iff_of_eq rfl
 
@@ -207,6 +217,8 @@ instance : Collection F (Context F 𝓢) where
   subset_iff := by rintro ⟨s⟩ ⟨u⟩; simp [Set.subset_def]
   not_mem_empty := by simp
   mem_cons_iff := by simp [Cons.cons, mem_def]
+  mem_singleton := by intro x z; exact Set.mem_singleton_iff
+  mem_tie_iff := by simp [tie, mem_def]
 
 structure Proof (Γ : Context F 𝓢) (p : F) where
   ctx : List F
@@ -223,9 +235,9 @@ abbrev Provable (Γ : Set F) (p : F) : Prop := (Γ : Context F 𝓢) ⊢! p
 
 abbrev Unprovable (Γ : Set F) (p : F) : Prop := (Γ : Context F 𝓢) ⊬! p
 
-abbrev PrfSet (Γ : Set F) (s : Set F) : Type _ := (Γ : Context F 𝓢) ⊢* s
+abbrev PrfSet (Γ : Set F) {α} [Membership F α] (s : α) : Type _ := (Γ : Context F 𝓢) ⊢* s
 
-abbrev ProvableSet (Γ : Set F) (s : Set F) : Prop := (Γ : Context F 𝓢) ⊢!* s
+abbrev ProvableSet (Γ : Set F) {α} [Membership F α] (s : α) : Prop := (Γ : Context F 𝓢) ⊢!* s
 
 notation Γ:45 " *⊢[" 𝓢 "] " p:46 => Prf 𝓢 Γ p
 
@@ -248,14 +260,14 @@ section minimal
 variable [System.Minimal 𝓢]
 
 instance : Axiomatized (Context F 𝓢) where
-  prfAxm := fun {Γ p} hp ↦ ⟨[p], by simpa using hp, byAxm (by simp [Collection.set])⟩
-  weakening := fun h b ↦ ⟨b.ctx, fun p hp ↦ Collection.subset_iff.mp h p (b.subset p hp), b.prf⟩
+  prfAxm := fun {Γ p} hp ↦ ⟨[p], by simpa using hp, byAxm (by simp [Precollection.set])⟩
+  weakening := fun h b ↦ ⟨b.ctx, fun p hp ↦ Precollection.subset_iff.mp h p (b.subset p hp), b.prf⟩
 
 instance : Compact (Context F 𝓢) where
-  φ := fun b ↦ Collection.set b.ctx
-  φPrf := fun b ↦ ⟨b.ctx, by simp [Collection.set], b.prf⟩
+  φ := fun b ↦ Precollection.set b.ctx
+  φPrf := fun b ↦ ⟨b.ctx, by simp [Precollection.set], b.prf⟩
   φ_subset := by rintro ⟨Γ⟩ p b; exact b.subset
-  φ_finite := by rintro ⟨Γ⟩; simp [Collection.Finite, Collection.set]
+  φ_finite := by rintro ⟨Γ⟩; simp [Collection.Finite, Precollection.set]
 
 def deduct [DecidableEq F] {p q : F} {Γ : Set F} : (insert p Γ) *⊢[𝓢] q → Γ *⊢[𝓢] p ⟶ q
   | ⟨Δ, h, b⟩ =>
