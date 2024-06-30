@@ -1,6 +1,4 @@
-import Logic.Modal.Standard.Formula
 import Logic.Modal.Standard.Deduction
-import Logic.Modal.Standard.HilbertStyle
 import Logic.Propositional.Superintuitionistic.Kripke.Classical
 
 /-!
@@ -136,10 +134,10 @@ lemma iff_Triv_classical : 𝐓𝐫𝐢𝐯 ⊢! p ↔ 𝐂𝐥 ⊢! pᵀᴾ := 
       . obtain ⟨_, _, e⟩ := hK; subst_vars; dsimp [Axioms.K, TrivTranslation, toPropFormula]; apply imp_id!;
       . obtain ⟨_, e⟩ := hT; subst_vars; dsimp [Axioms.T, TrivTranslation, toPropFormula]; apply imp_id!;
       . obtain ⟨_, e⟩ := hTc; subst_vars; dsimp [Axioms.Tc, TrivTranslation, toPropFormula]; apply imp_id!;
-    | hMdp ih₁ ih₂ =>
-      dsimp [TrivTranslation, toPropFormula] at ih₁ ih₂;
-      exact ih₁ ⨀ ih₂;
-    | hNec ih => simp_all only [TrivTranslation];
+    | hMdp ihpq ihp =>
+      dsimp [TrivTranslation, toPropFormula] at ihpq ihp;
+      exact ihpq ⨀ ihp;
+    | hNec ihp => exact ihp;
     | _ => dsimp [TrivTranslation, toPropFormula]; trivial
   . intro h;
     have d₁ : 𝐓𝐫𝐢𝐯 ⊢! pᵀ ⟶ p := and₂'! deducible_iff_trivTranslation;

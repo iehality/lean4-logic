@@ -1,6 +1,5 @@
+import Logic.Vorspiel.BinaryRelations
 import Logic.Modal.Standard.Deduction
-
-universe u v
 
 namespace LO.Modal.Standard
 
@@ -43,6 +42,8 @@ structure Model (α) where
 
 abbrev Model.World (M : PLoN.Model α) := M.Frame.World
 instance : CoeSort (PLoN.Model α) (Type _) := ⟨Model.World⟩
+
+
 
 end PLoN
 
@@ -120,6 +121,12 @@ protected lemma mdp (hpq : F ⊧ p ⟶ q) (hp : F ⊧ p) : F ⊧ q := by
   intro V x;
   exact (hpq V x) (hp V x);
 
+protected lemma disj₃ : F ⊧ (p ⟶ r) ⟶ (q ⟶ r) ⟶ p ⋎ q ⟶ r := by
+  intro V x hpr hqr hpq;
+  cases hpq with
+  | inl hp => exact hpr hp;
+  | inr hq => exact hqr hq;
+
 end Formula.PLoN.ValidOnFrame
 
 
@@ -143,13 +150,21 @@ protected lemma mdp (hpq : 𝔽 ⊧ p ⟶ q) (hp : 𝔽 ⊧ p) : 𝔽 ⊧ q := b
   intro _ hF;
   exact PLoN.ValidOnFrame.mdp (hpq hF) (hp hF)
 
+protected lemma disj₃ : 𝔽 ⊧ (p ⟶ r) ⟶ (q ⟶ r) ⟶ p ⋎ q ⟶ r := by
+  intro _ _;
+  exact PLoN.ValidOnFrame.disj₃;
+
 end Formula.PLoN.ValidOnFrameClass
 
 
+def DeductionParameter.CharacterizedByPLoNFrameClass (𝓓 : DeductionParameter α) (𝔽 : PLoN.FrameClass α) := ∀ {F : Frame α}, F ∈ 𝔽 → F ⊧* 𝓓.theory
+
+-- MEMO: `←`方向は成り立たない可能性がある
 def DeductionParameter.DefinesPLoNFrameClass (𝓓 : DeductionParameter α) (𝔽 : PLoN.FrameClass α) := ∀ {F : Frame α}, F ⊧* 𝓓.theory ↔ F ∈ 𝔽
 
 namespace PLoN
 
+open Formula.PLoN
 
 abbrev AllFrameClass (α) : FrameClass α := Set.univ
 
@@ -159,24 +174,121 @@ lemma AllFrameClass.nonempty : (AllFrameClass.{_, 0} α).Nonempty := by
 
 open Formula
 
-lemma N_defines : 𝐍.DefinesPLoNFrameClass (AllFrameClass α) := by
+lemma N_characterized : 𝐍.CharacterizedByPLoNFrameClass (AllFrameClass α) := by
   intro F;
   simp [DeductionParameter.theory, System.theory, PLoN.ValidOnFrame, PLoN.ValidOnModel];
   intro p hp;
   induction hp using Deduction.inducition_with_necOnly! with
   | hMaxm h => simp at h;
-  | hMdp ihpq ihp =>
-    intro V w;
-    exact (ihpq V w) (ihp V w)
-  | hNec ihp =>
-    intro V w w' _;
-    exact ihp V w';
-  | hDisj₃ =>
-    simp_all only [PLoN.Satisfies];
-    intros; rename_i hpr hqr hpq;
-    cases hpq with
-    | inl hp => exact hpr hp;
-    | inr hq => exact hqr hq;
+  | hMdp ihpq ihp => exact PLoN.ValidOnFrame.mdp ihpq ihp;
+  | hNec ihp => exact PLoN.ValidOnFrame.nec ihp;
+  | hOrElim => exact PLoN.ValidOnFrame.disj₃;
+  | _ => simp_all [PLoN.Satisfies];
+
+
+namespace Frame
+
+variable (F : Frame α)
+
+def SerialOnFormula (p : Formula α) : Prop := Serial (F.Rel' p)
+
+def SerialOnTheory (T : Theory α) : Prop := ∀ p ∈ T, F.SerialOnFormula p
+
+protected def Serial : Prop := ∀ p, F.SerialOnFormula p
+
+
+def TransitiveOnFormula (p : Formula α) : Prop := ∀ {x y z : F.World}, x ≺[□p] y → y ≺[p] z → x ≺[p] z
+
+def TransitiveOnTheory (T : Theory α) : Prop := ∀ p ∈ T, F.SerialOnFormula p
+
+protected def Transitive (F : Frame α) := ∀ p, F.TransitiveOnFormula p
+
+end Frame
+
+
+open System
+
+lemma validRosserRule_of_serial {p : Formula α} {F : PLoN.Frame α} (hSerial : F.SerialOnFormula p) (h : F ⊧ ~p) : F ⊧ ~(□p) := by
+  intro V x;
+  obtain ⟨y, hy⟩ := hSerial x;
+  simp [Formula.PLoN.Satisfies];
+  use y, hy;
+  exact h V y;
+
+lemma validAxiomFour_of_transitive {p : Formula α} {F : PLoN.Frame α} (hTrans : F.TransitiveOnFormula p) : F ⊧ Axioms.Four p := by
+  dsimp [Axioms.Four];
+  intro V x h y rxy z ryz;
+  exact h (hTrans rxy ryz);
+
+
+abbrev TransitiveFrameClass (α) : PLoN.FrameClass α := { F | Frame.Transitive F }
+
+lemma TransitiveFrameClass.nonempty : (TransitiveFrameClass.{_, 0} α).Nonempty := by
+  use terminalFrame α;
+  simp [Frame.Transitive, Frame.TransitiveOnFormula];
+
+
+abbrev SerialFrameClass (α) : PLoN.FrameClass α := { F | Frame.Serial F }
+
+lemma SerialFrameClass.nonempty : (SerialFrameClass.{_, 0} α).Nonempty := by
+  use terminalFrame α;
+  intro p x; use x;
+
+
+abbrev TransitiveSerialFrameClass (α) : PLoN.FrameClass α := { F | F.Transitive ∧ F.Serial }
+
+lemma TransitiveSerialFrameClass.nonempty : (TransitiveSerialFrameClass.{_, 0} α).Nonempty := by
+  use terminalFrame α;
+  simp [Frame.Transitive, Frame.Serial, Frame.TransitiveOnFormula, Frame.SerialOnFormula];
+  intro p x; use x;
+
+
+lemma N4_characterized : 𝐍𝟒.CharacterizedByPLoNFrameClass (TransitiveFrameClass α) := by
+  intro F;
+  simp [DeductionParameter.theory, System.theory, PLoN.ValidOnFrame, PLoN.ValidOnModel];
+  intro hTrans p hp;
+  induction hp using Deduction.inducition_with_necOnly! with
+  | hMaxm h =>
+    obtain ⟨p, e⟩ := h; subst e;
+    exact validAxiomFour_of_transitive (hTrans p);
+  | hMdp ihpq ihp => exact PLoN.ValidOnFrame.mdp ihpq ihp;
+  | hNec ihp => exact PLoN.ValidOnFrame.nec ihp;
+  | hOrElim => exact PLoN.ValidOnFrame.disj₃;
+  | _ => simp_all [PLoN.Satisfies];
+
+lemma NRosser_characterized : 𝐍(𝐑).CharacterizedByPLoNFrameClass (SerialFrameClass α) := by
+  intro F;
+  simp [DeductionParameter.theory, System.theory, PLoN.ValidOnFrame, PLoN.ValidOnModel];
+  intro hSerial p hp;
+  induction hp using Deduction.inducition! with
+  | hMaxm h => simp at h;
+  | hMdp ihpq ihp => exact PLoN.ValidOnFrame.mdp ihpq ihp;
+  | hRules rl hrl hant ih =>
+    rcases hrl with (hNec | hRosser)
+    . obtain ⟨p, e⟩ := hNec; subst e; simp_all;
+      exact PLoN.ValidOnFrame.nec ih;
+    . obtain ⟨p, e⟩ := hRosser; subst e; simp_all;
+      exact validRosserRule_of_serial (hSerial _) ih;
+  | hOrElim => exact PLoN.ValidOnFrame.disj₃;
+  | _ => simp_all [PLoN.Satisfies];
+
+-- TODO: `theory 𝐍𝟒 ∪ theory 𝐍(𝐑) = theory 𝐍𝟒(𝐑)`という事実を示せば共通部分だけで簡単に特徴づけられる気がする
+lemma N4Rosser_characterized : 𝐍𝟒(𝐑).CharacterizedByPLoNFrameClass (TransitiveSerialFrameClass α) := by
+  intro F;
+  simp [DeductionParameter.theory, System.theory, PLoN.ValidOnFrame, PLoN.ValidOnModel];
+  intro hTrans hSerial p hp;
+  induction hp using Deduction.inducition! with
+  | hMaxm h =>
+    obtain ⟨p, e⟩ := h; subst e;
+    exact validAxiomFour_of_transitive (hTrans p);
+  | hMdp ihpq ihp => exact PLoN.ValidOnFrame.mdp ihpq ihp;
+  | hRules rl hrl hant ih =>
+    rcases hrl with (hNec | hRosser)
+    . obtain ⟨p, e⟩ := hNec; subst e; simp_all;
+      exact PLoN.ValidOnFrame.nec ih;
+    . obtain ⟨p, e⟩ := hRosser; subst e; simp_all;
+      exact validRosserRule_of_serial (hSerial _) ih;
+  | hOrElim => exact PLoN.ValidOnFrame.disj₃;
   | _ => simp_all [PLoN.Satisfies];
 
 end PLoN
