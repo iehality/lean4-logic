@@ -139,7 +139,7 @@ noncomputable def inducition!
              motive p (hant hp)) → motive r.consequence ⟨rule hr (λ hp => (hant hp).some)⟩)
   (hMaxm     : ∀ {p}, (h : p ∈ Ax(𝓓)) → motive p ⟨maxm h⟩)
   (hMdp      : ∀ {p q}, {hpq : 𝓓 ⊢! p ⟶ q} → {hp : 𝓓 ⊢! p} → motive (p ⟶ q) hpq → motive p hp → motive q ⟨mdp hpq.some hp.some⟩)
-  (hverum    : motive ⊤ ⟨verum⟩)
+  (hVerum    : motive ⊤ ⟨verum⟩)
   (hImply₁   : ∀ {p q}, motive (p ⟶ q ⟶ p) $ ⟨imply₁ p q⟩)
   (hImply₂   : ∀ {p q r}, motive ((p ⟶ q ⟶ r) ⟶ (p ⟶ q) ⟶ p ⟶ r) $ ⟨imply₂ p q r⟩)
   (hAndElim₁ : ∀ {p q}, motive (p ⋏ q ⟶ p) $ ⟨and₁ p q⟩)
@@ -164,7 +164,7 @@ noncomputable def inducition_with_necOnly! [𝓓.HasNecOnly]
   (hMaxm   : ∀ {p}, (h : p ∈ Ax(𝓓)) → motive p ⟨maxm h⟩)
   (hMdp    : ∀ {p q}, {hpq : 𝓓 ⊢! p ⟶ q} → {hp : 𝓓 ⊢! p} → motive (p ⟶ q) hpq → motive p hp → motive q (hpq ⨀ hp))
   (hNec    : ∀ {p}, {hp : 𝓓 ⊢! p} → (ihp : motive p hp) → motive (□p) (System.nec! hp))
-  (hverum    : motive ⊤ ⟨verum⟩)
+  (hVerum    : motive ⊤ ⟨verum⟩)
   (hImply₁   : ∀ {p q}, motive (p ⟶ q ⟶ p) $ ⟨imply₁ p q⟩)
   (hImply₂   : ∀ {p q r}, motive ((p ⟶ q ⟶ r) ⟶ (p ⟶ q) ⟶ p ⟶ r) $ ⟨imply₂ p q r⟩)
   (hAndElim₁ : ∀ {p q}, motive (p ⋏ q ⟶ p) $ ⟨and₁ p q⟩)
@@ -184,7 +184,7 @@ noncomputable def inducition_with_necOnly! [𝓓.HasNecOnly]
     rw [HasNecOnly.has_necessitation_only] at hrl;
     obtain ⟨p, e⟩ := hrl; subst e;
     exact @hNec p (hant (by simp)) $ ih (by simp);
-  | hverum => exact hverum
+  | hVerum => exact hverum
   | hImply₁ => exact hImply₁
   | hImply₂ => exact hImply₂
   | hAndElim₁ => exact hAndElim₁
