@@ -68,7 +68,7 @@ instance : System (Formula α) (DeductionParameter α) := ⟨Deduction⟩
 
 variable {𝓓 𝓓₁ 𝓓₂ : DeductionParameter α}
 
-instance : System.Minimal 𝓓 where
+instance : System.Classical 𝓓 where
   mdp := mdp
   verum := verum
   imply₁ := imply₁
@@ -79,8 +79,6 @@ instance : System.Minimal 𝓓 where
   or₁ := or₁
   or₂ := or₂
   or₃ := or₃
-
-instance : System.Classical 𝓓 where
   dne := dne
   neg_equiv := neg_equiv
 
