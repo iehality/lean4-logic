@@ -14,6 +14,7 @@ def Formula.toModalFormula : Formula α → Modal.Standard.Formula α
   | ⊤ => ⊤
   | ⊥ => ⊥
   | p ⟶ q => (toModalFormula p) ⟶ (toModalFormula q)
+  | ~p => ~(toModalFormula p)
   | p ⋏ q => (toModalFormula p) ⋏ (toModalFormula q)
   | p ⋎ q => (toModalFormula p) ⋎ (toModalFormula q)
 postfix:75 "ᴹ" => Formula.toModalFormula
@@ -34,6 +35,7 @@ def toPropFormula (p : Formula α) (_ : p.degree = 0 := by simp_all) : Superintu
   | atom a => Superintuitionistic.Formula.atom a
   | ⊤ => ⊤
   | ⊥ => ⊥
+  | ~p => ~(p.toPropFormula)
   | p ⋏ q => p.toPropFormula ⋏ q.toPropFormula
   | p ⋎ q => p.toPropFormula ⋎ q.toPropFormula
   | p ⟶ q => p.toPropFormula ⟶ q.toPropFormula
@@ -45,6 +47,7 @@ def TrivTranslation : Formula α → Formula α
   | box p => p.TrivTranslation
   | ⊤ => ⊤
   | ⊥ => ⊥
+  | ~p => ~(p.TrivTranslation)
   | p ⟶ q => (p.TrivTranslation) ⟶ (q.TrivTranslation)
   | p ⋏ q => (p.TrivTranslation) ⋏ (q.TrivTranslation)
   | p ⋎ q => (p.TrivTranslation) ⋎ (q.TrivTranslation)
@@ -63,6 +66,7 @@ def VerTranslation : Formula α → Formula α
   | box _ => ⊤
   | ⊤ => ⊤
   | ⊥ => ⊥
+  | ~p => ~(p.VerTranslation)
   | p ⟶ q => (p.VerTranslation) ⟶ (q.VerTranslation)
   | p ⋏ q => (p.VerTranslation) ⋏ (q.VerTranslation)
   | p ⋎ q => (p.VerTranslation) ⋎ (q.VerTranslation)
@@ -89,13 +93,13 @@ open System
 open Formula
 
 lemma deducible_iff_trivTranslation : 𝐓𝐫𝐢𝐯 ⊢! p ⟷ pᵀ := by
-  -- have := @Deduction.ofTriv;
   induction p using Formula.rec' with
   | hbox p ih =>
     simp [TrivTranslation];
     apply iff_intro!;
     . exact imp_trans''! axiomT! (and₁'! ih)
     . exact imp_trans''! (and₂'! ih) axiomTc!
+  | hneg _ ih => exact neg_replace_iff'! ih;
   | himp _ _ ih₁ ih₂ => exact imp_replace_iff! ih₁ ih₂;
   | hand _ _ ih₁ ih₂ => exact and_replace_iff! ih₁ ih₂;
   | hor _ _ ih₁ ih₂ => exact or_replace_iff! ih₁ ih₂;
@@ -107,6 +111,7 @@ lemma deducible_iff_verTranslation : 𝐕𝐞𝐫 ⊢! p ⟷ pⱽ := by
     apply iff_intro!;
     . exact imply₁'! verum!
     . exact dhyp! (by simp)
+  | hneg _ ih => exact neg_replace_iff'! ih;
   | himp _ _ ih₁ ih₂ => exact imp_replace_iff! ih₁ ih₂;
   | hand _ _ ih₁ ih₂ => exact and_replace_iff! ih₁ ih₂;
   | hor _ _ ih₁ ih₂ => exact or_replace_iff! ih₁ ih₂;
@@ -119,7 +124,7 @@ lemma of_classical {m𝓓 : Modal.Standard.DeductionParameter α} {p : Superintu
     simp_all;
     rcases ih with (efq | lem);
     . obtain ⟨q, e⟩ := efq; subst_vars; exact efq!;
-    . obtain ⟨q, e⟩ := lem; subst_vars; exact lem!;
+    . obtain ⟨q, e⟩ := lem; subst_vars; sorry; -- exact lem!;
   | mdp h₁ h₂ ih₁ ih₂ =>
     dsimp only [Superintuitionistic.Formula.toModalFormula] at ih₁ ih₂;
     exact (ih₁ ⟨h₁⟩) ⨀ (ih₂ ⟨h₂⟩);
