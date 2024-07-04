@@ -204,7 +204,7 @@ noncomputable def inducition_with_necOnly! [𝓓.HasNecOnly]
     rw [HasNecOnly.has_necessitation_only] at hrl;
     obtain ⟨p, e⟩ := hrl; subst e;
     exact @hNec p (hant (by simp)) $ ih (by simp);
-  | hVerum => exact hverum
+  | hVerum => exact hVerum
   | hImply₁ => exact hImply₁
   | hImply₂ => exact hImply₂
   | hAndElim₁ => exact hAndElim₁
