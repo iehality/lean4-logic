@@ -238,41 +238,43 @@ def Formula.Subformulas: Formula α → Finset (Formula α)
   | ⊤      => {⊤}
   | ⊥      => {⊥}
   | atom a => {(atom a)}
-  | ~p     => insert (~p) p.Subformulas
-  | p ⟶ q => insert (p ⟶ q) (p.Subformulas ∪ q.Subformulas)
-  | p ⋏ q  => {p ⋏ q} ∪ (p.Subformulas ∪ q.Subformulas)
-  | p ⋎ q  => insert (p ⋎ q) (p.Subformulas ∪ q.Subformulas)
-  | box p  => insert (□p) p.Subformulas
+  | ~p     => insert (~p) $ p.Subformulas
+  | p ⟶ q => insert (p ⟶ q) $ p.Subformulas ∪ q.Subformulas
+  | p ⋏ q  => insert (p ⋏ q) $ p.Subformulas ∪ q.Subformulas
+  | p ⋎ q  => insert (p ⋎ q) $ p.Subformulas ∪ q.Subformulas
+  | box p  => insert (□p) $ p.Subformulas
 
 namespace Formula.Subformulas
 
+prefix:70 "Sub " => Subformulas
+
 @[simp]
-lemma mem_self (p : Formula α) : p ∈ p.Subformulas := by induction p using Formula.rec' <;> simp [Subformulas];
+lemma mem_self (p : Formula α) : p ∈ Sub p := by induction p using Formula.rec' <;> simp [Subformulas];
 
 variable {p q r : Formula α}
 
-lemma mem_neg (h : ~q ∈ p.Subformulas) : q ∈ p.Subformulas := by
+lemma mem_neg (h : ~q ∈ Sub p) : q ∈ Sub p := by
   induction p using Formula.rec' <;> {
     simp_all [Subformulas];
     try rcases h with (hq | hr); simp_all; simp_all;
   };
 
-lemma mem_and (h : (q ⋏ r) ∈ p.Subformulas) : q ∈ p.Subformulas ∧ r ∈ p.Subformulas := by
+lemma mem_and (h : (q ⋏ r) ∈ Sub p) : q ∈ Sub p ∧ r ∈ Sub p := by
   induction p using Formula.rec' with
   | hand => simp_all [Subformulas]; rcases h with ⟨_⟩ | ⟨⟨_⟩ | ⟨_⟩⟩ <;> simp_all
   | _ => simp_all [Subformulas]; try rcases h with (hq | hr); simp_all; simp_all;
 
-lemma mem_or (h : (q ⋎ r) ∈ p.Subformulas) : q ∈ p.Subformulas ∧ r ∈ p.Subformulas := by
+lemma mem_or (h : (q ⋎ r) ∈ Sub p) : q ∈ Sub p ∧ r ∈ Sub p := by
   induction p using Formula.rec' with
   | hor => simp_all [Subformulas]; rcases h with ⟨_⟩ | ⟨⟨_⟩ | ⟨_⟩⟩ <;> simp_all
   | _ => simp_all [Subformulas]; try rcases h with (hq | hr); simp_all; simp_all;
 
-lemma mem_imp (h : (q ⟶ r) ∈ p.Subformulas) : q ∈ p.Subformulas ∧ r ∈ p.Subformulas := by
+lemma mem_imp (h : (q ⟶ r) ∈ Sub p) : q ∈ Sub p ∧ r ∈ Sub p := by
   induction p using Formula.rec' with
   | himp => simp_all [Subformulas]; rcases h with ⟨_⟩ | ⟨⟨_⟩ | ⟨_⟩⟩ <;> simp_all
   | _ => simp_all [Subformulas]; try rcases h with (hq | hr); simp_all; simp_all;
 
-lemma mem_box (h : □q ∈ p.Subformulas) : q ∈ p.Subformulas := by
+lemma mem_box (h : □q ∈ Sub p) : q ∈ Sub p := by
   induction p using Formula.rec' <;> {
     simp_all [Subformulas];
     try rcases h with (hq | hr); simp_all; simp_all;
@@ -290,7 +292,7 @@ class Formula.SubformulaClosed (C : (Formula α) → Prop) where
 
 open Formula (Subformulas)
 
-instance {p : Formula α} : (Formula.SubformulaClosed (p.Subformulas).toSet) where
+instance {p : Formula α} : (Formula.SubformulaClosed (Sub p).toSet) where
   neg := by intro q hq; exact Subformulas.mem_neg hq;
   and := by intro q r hqr; exact Subformulas.mem_and hqr;
   or  := by intro q r hqr; exact Subformulas.mem_or hqr;
