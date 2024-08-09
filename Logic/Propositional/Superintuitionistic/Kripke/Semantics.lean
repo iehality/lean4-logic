@@ -18,9 +18,10 @@ def Satisfies (M : Kripke.Model.{u, v} α) (w : M.World) : Formula α → Prop
   | p ⋎ q  => Satisfies M w p ∨ Satisfies M w q
   | ~p     => ∀ {w' : M.World}, (w ≺ w') → ¬Satisfies M w' p
   | p ⟶ q => ∀ {w' : M.World}, (w ≺ w') → (Satisfies M w' p → Satisfies M w' q)
-instance instSatisfiesSemantics (M : Kripke.Model.{u, v} α) : Semantics (Formula α) (M.World) := ⟨fun w ↦ Formula.Kripke.Satisfies M w⟩
 
 namespace Satisfies
+
+instance semantics (M : Kripke.Model.{u, v} α) : Semantics (Formula α) (M.World) := ⟨fun w ↦ Formula.Kripke.Satisfies M w⟩
 
 variable {M : Model α} {w : M.World} {p q r : Formula α}
 
@@ -71,9 +72,10 @@ open Satisfies
 
 
 def ValidOnModel (M : Model α) (p : Formula α) := ∀ w : M.World, w ⊧ p
-instance : Semantics (Formula α) (Model α) := ⟨fun M ↦ Formula.Kripke.ValidOnModel M⟩
 
 namespace ValidOnModel
+
+instance semantics : Semantics (Formula α) (Model α) := ⟨fun M ↦ Formula.Kripke.ValidOnModel M⟩
 
 variable
   {M : Model α} {p q r : Formula α}
@@ -169,9 +171,10 @@ end ValidOnModel
 
 def ValidOnFrame (F : Frame) (p : Formula α) := ∀ {V : Valuation F α}, (_ : V.atomic_hereditary) → (⟨F, V⟩ : Kripke.Model α) ⊧ p
 
-instance : Semantics (Formula α) (Frame.Dep α) := ⟨fun F ↦ Formula.Kripke.ValidOnFrame F⟩
 
 namespace ValidOnFrame
+
+instance semantics : Semantics (Formula α) (Frame.Dep α) := ⟨fun F ↦ Formula.Kripke.ValidOnFrame F⟩
 
 variable {F : Frame.Dep α}
 
@@ -220,17 +223,27 @@ instance : Semantics.Bot (Frame.Dep α) where
 end ValidOnFrame
 
 
-instance : Semantics (Formula α) (FrameClass.Dep α) := LO.Semantics.instSet (Frame.Dep α)
+@[simp] def ValidOnFrameClass (𝔽 : FrameClass) (p : Formula α) := ∀ {F : Frame}, F ∈ 𝔽 → F#α ⊧ p
 
+namespace ValidOnFrameClass
+
+instance semantics : Semantics (Formula α) (FrameClass.Dep α) := ⟨fun 𝔽 ↦ Kripke.ValidOnFrameClass 𝔽⟩
+
+variable {𝔽 : FrameClass.Dep α}
+
+@[simp] protected lemma models_iff : 𝔽 ⊧ p ↔ Formula.Kripke.ValidOnFrameClass 𝔽 p := iff_of_eq rfl
+
+end ValidOnFrameClass
 
 end Formula.Kripke
+
 
 open Formula.Kripke
 open Formula.Kripke.Satisfies (formula_hereditary)
 
 namespace Kripke
 
-abbrev FrameClassOfSystem (α : Type u) {S : Type u} [System (Formula α) S] (𝓢 : S) : FrameClass.Dep α := { (F : Frame.Dep α) | F ⊧* System.theory 𝓢 }
+abbrev FrameClassOfSystem (α : Type u) {S : Type v} [System (Formula α) S] (𝓢 : S) : FrameClass.Dep α := { (F : Frame.Dep α) | F ⊧* System.theory 𝓢 }
 notation "𝔽(" 𝓢 " of " α ")" => FrameClassOfSystem α 𝓢
 
 section Soundness
