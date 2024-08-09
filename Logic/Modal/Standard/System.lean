@@ -527,11 +527,11 @@ def boxdotAxiomFour [HasAxiomFour 𝓢] : 𝓢 ⊢ ⊡p ⟶ ⊡⊡p := and₁' i
 @[simp] lemma boxdot_axiomFour! [HasAxiomFour 𝓢] : 𝓢 ⊢! ⊡p ⟶ ⊡⊡p := ⟨boxdotAxiomFour⟩
 
 
-def iff_box_boxdot [HasAxiomT 𝓢] [HasAxiomFour 𝓢] : 𝓢 ⊢ □p ⟷ ⊡p := by
+def iff_box_boxdot [HasAxiomT 𝓢] : 𝓢 ⊢ □p ⟷ ⊡p := by
   apply iffIntro;
   . exact implyRightAnd (axiomT) (impId _);
   . exact and₂;
-@[simp] lemma iff_box_boxdot! [HasAxiomT 𝓢] [HasAxiomFour 𝓢] : 𝓢 ⊢! □p ⟷ ⊡p := ⟨iff_box_boxdot⟩
+@[simp] lemma iff_box_boxdot! [HasAxiomT 𝓢] : 𝓢 ⊢! □p ⟷ ⊡p := ⟨iff_box_boxdot⟩
 
 def axiomFive [HasAxiomFive 𝓢] : 𝓢 ⊢ ◇p ⟶ □◇p := HasAxiomFive.Five _
 @[simp] lemma axiomFive! [HasAxiomFive 𝓢] : 𝓢 ⊢! ◇p ⟶ □◇p := ⟨axiomFive⟩
